@@ -1,0 +1,7 @@
+- Improve:
+	- Remove Tweens using external variables.
+- Test:
+- Finish:
+	- Menu
+	- Events
+	- Scenes
