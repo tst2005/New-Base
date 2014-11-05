@@ -1,48 +1,46 @@
-local Class = require 'Utilities.Class'
-local Timer = require 'Utilities.Timer'
-local Tween = Class:Extend()
+local tween = require 'Utilities.Third Party.tween'
+local OriginalMeta = getmetatable( tween.new( 1, { 1 }, { 1 } ) )
+local Tween = {}
+Tween.__index = Tween
+setmetatable( Tween, OriginalMeta )
+Tween.Easing = tween.easing
 
-function Tween.New()
-	local New = Tween:Extend()
-	New.Start, New.End, New.Function = nil, nil, nil
-	New.CurrentValue = New.Start
-	New.Timer = Timer.New() -- This line.
-	New.Active = true
+-- tween.lua functions
+function Tween.New( Time, Subject, Target, Easing )
+	local New = tween.new( Time, Subject, Target, Easing )
+	New.__index = Tween
+	setmetatable( New, Tween )
 	return New
 end
 
--- Start
-function Tween.SetStart( Self, Value ) Self.Start, Self.CurrentValue = Value, Value end
-function Tween.GetStart( Self ) return Self.Start end
--- End
-function Tween.SetEnd( Self, Value ) Self.End = Value end
-function Tween.GetEnd( Self ) return Self.End end
--- Function
-function Tween.SetFunction( Self, Function ) Self.Function = Function end
-function Tween.GetFunction( Self ) return Self.Function end
--- CurrentValue
-function Tween.SetCurrentValue( Self, Value ) Self.CurrentValue = Value end
-function Tween.GetCurrentValue( Self ) return Self.CurrentValue end
--- Timer
-function Tween.SetTimer( Self, Time ) Self.Timer:SetTime( Time ) end
-function Tween.GetTimer( Self ) return Self.Timer:GetTime() end
--- Active
-function Tween.Resume( Self ) Self.Timer:Resume() end
-function Tween.Pause( Self ) Self.Timer:Pause() end
-function Tween.Stop( Self ) Self.Timer:Stop(); Self.CurrentValue = Self.Start end
-function Tween.Start( Self ) Self.Timer:Start(); Self.CurrentValue = Self.Start end
-
--- Update
 function Tween.Update( Self, dt )
-	if Self.Active then
-		Self.Timer:Update( dt )
-		Self.CurrentValue = Self.Function( Self.Timer:GetTime() )
-		
-		if Self.CurrentValue > Self.End then
-			Self:Stop()
-		end
-	end
-	return Self.CurrentValue
+	return Self:update( dt )
 end
+
+function Tween.Set( Self, Clock )
+	return Self:set( Clock )
+end
+
+function Tween.Reset( Self )
+	Self:reset()
+end
+
+-- Duration
+function Tween.SetDuration( Self, Duration ) Self.duration = Duration; return Self end
+function Tween.GetDuration( Self ) return Self.duration end
+-- Subject
+function Tween.SetSubject( Self, Table ) Self.subject = Table; return Self end
+function Tween.GetSubject( Self ) return Self.subject end
+-- Target
+function Tween.SetTarget( Self, Table ) Self.target = Table; return Self end
+function Tween.GetTarget( Self ) return Self.target end
+-- Easing
+function Tween.SetEasing( Self, Type ) Self.easing = Type; return Self end
+function Tween.GetEasing( Self ) return Self.easing end
+-- Initial
+function Tween.SetInitial( Self, Values ) Self.initial = Values; return Self end
+function Tween.GetInitial( Self ) return Self.initial end
+-- Clock
+function Tween.GetTime( Self ) return Self.clock end
 
 return Tween

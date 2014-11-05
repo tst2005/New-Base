@@ -1,36 +1,45 @@
-local Class = require 'Utilities.Class'
-local Timer = Class:Extend()
+local Globals = require 'Utilities.Globals'
+local cron = require 'Utilities.Third Party.cron'
+local OriginalMeta = getmetatable( cron.after( 0, function() end ) )
+local Timer = {}
+Timer.__index = Timer
+setmetatable( Timer, OriginalMeta )
 
-function Timer.New()
-	local New = Timer:Extend()
-	New.Time = 0
-	New.Active = true
-	New.HasStopped = false
-	New.Limit = nil
+local function SetMetaTable( Original, Meta )
+	Original.Active = true
+	Original.__index = Meta
+	setmetatable( Original, Meta )
+end
+
+-- cron.lua functions
+function Timer.After( Time, Callback, ... )
+	local New = cron.after( Time, Callback, ... )
+	SetMetaTable( New, Timer )
 	return New
 end
 
--- Timer
-function Timer.SetTime( Self, Time ) Self.Time = Time end
-function Timer.GetTime( Self ) return Self.Time end
--- Activity
-function Timer.Resume( Self ) Self.Active = true end
-function Timer.Pause( Self ) Self.Active = false end
-function Timer.Stop( Self ) Self.Active, Self.HasStopped = false, true end
-function Timer.Start( Self ) Self.Active, Self.Index, Self.Time, Self.HasStopped = true, 1, 0, false end
-function Timer.IsActive( Self ) return Self.Active end
--- HasStopped
-function Timer.HasStopped( Self ) return Self.HasStopped end
--- Limit
-function Timer.SetLimit( Self, Limit ) Self.Limit = Limit end
-function Timer.GetLimit( Self ) return Self.Limit end
-
--- Update
-function Timer.Update( Self, dt )
-	if Self.Active then
-		Self.Time = Self.Time + dt
-		if Self.Limit and Self.Time > Self.Limit then Self:Stop() end
-	end
+function Timer.Every( Time, Callback, ... )
+	local New = cron.every( Time, Callback, ... )
+	SetMetaTable( New, Timer )
+	return New
 end
+
+function Timer.Update( Self, dt ) if Self.Active then Self.Active = not Self:update( dt ) end; return Self.Active end
+function Timer.Reset( Self, Running ) Self.Active = true; Self:reset( Running ) end
+-- Time
+function Timer.GetTime( Self ) return Self.running end
+-- Activity
+function Timer.IsActive( Self ) return Self.Active end
+function Timer.Pause( Self ) Self.Active = false; return Self end
+function Timer.Resume( Self ) Self.Active = true; return Self end
+-- Duration
+function Timer.SetDuration( Self, Time ) Self.time = Time; return Self end
+function Timer.GetDuration( Self ) return Self.time end
+-- Callbacks
+function Timer.SetCallback( Self, Function ) Self.callback = Function; return Self end
+function Timer.GetCallback( Self ) return Self.callback end
+-- Arguments
+function Timer.SetArguments( Self, ... ) Self.args = Globals.CheckUserdata( ... ); return Self end
+function Timer.GetArguments( Self ) return Self.args end
 
 return Timer

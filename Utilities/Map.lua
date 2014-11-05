@@ -4,26 +4,28 @@ local Map = Base:Extend()
 
 function Map.New( Data )
 	local New = Map:Extend()
+	
 	New.x, New.y, New.Rotation, New.ScaleX, New.ScaleY, New.OffsetX, New.OffsetY, New.ShearingX, New.ShearingY = 0, 0, 0, 1, 1, 0, 0, 0, 0
 	New.Data = Data
 	New.References = {}
 	New.QuadImage = nil
 	New.ImageWidth = nil
 	New.ImageHeight = nil
+	
 	return New
 end
 
 -- Data
-function Map.SetData( Self, Data ) Self.Data = Data end
+function Map.SetData( Self, Data ) Self.Data = Data return Self end
 function Map.GetData( Self, Data ) return Self.Data end
 -- References
-function Map.SetReferences( Self, References ) Self.References = References end
+function Map.SetReferences( Self, References ) Self.References = References return Self end
 function Map.GetReferences( Self ) return Self.References end
 -- Width
-function Map.SetImageWidth( Self, Width ) Self.ImageWidth = Width end
+function Map.SetImageWidth( Self, Width ) Self.ImageWidth = Width return Self end
 function Map.GetImageWidth( Self ) return Self.ImageWidth end
 -- Height
-function Map.SetImageHeight( Self, Height ) Self.ImageHeight = Height end
+function Map.SetImageHeight( Self, Height ) Self.ImageHeight = Height return Self end
 function Map.GetImageHeight( Self ) return Self.ImageHeight end
 -- Tiles
 function Map.GetTileIndex( Self, x, y ) 
@@ -32,7 +34,7 @@ function Map.GetTileIndex( Self, x, y )
 	local Boolean = not not ( Self.Data[y] and Self.Data[y][x] ) 
 	return Boolean and x, Boolean and y 
 end
-function Map.SetTile( Self, x, y, Index ) Self.Data[y][x] = Index end
+function Map.SetTile( Self, x, y, Index ) Self.Data[y][x] = Index return Self end
 function Map.GetTile( Self, x, y ) return ( Self.Data[y] and Self.Data[x] ) and Self.Data[y][x] end
 
 -- Draw

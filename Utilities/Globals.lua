@@ -16,14 +16,15 @@ function Globals.TrimSpaces( String ) -- Removes extra spaces from the end of a 
 end
 
 function Globals.SetToCanvas( Width, Height, Function ) -- Sets a picture to canvas, handling Po2 problems. 
-	if not HasCanvas then return false end
-	if not HasPo2 then
+	if not Globals.HasCanvas then return false end
+	if not Globals.HasPo2 then
 		Width, Height = Globals.FormatPo2( Width ), Globals.FormatPo2( Height )
 	end
 	local Canvas = love.graphics.newCanvas( Width, Height )
 	love.graphics.setCanvas( Canvas )
 		Function()
 	love.graphics.setCanvas()
+	return Canvas
 end
 
 function Globals.FormatPo2( Goal ) -- Makes numbers Po2 compatible. 
@@ -91,7 +92,18 @@ function Globals.FlattenArray( List ) -- Flattens an array so that all informati
 	if type( List ) ~= 'table' then return { List } end
 	local FlattenedList = {}
 	for _, Value in ipairs( List ) do
-		for _, Element in ipairs( FlattenArray( Value ) ) do
+		for _, Element in ipairs( Globals.FlattenArray( Value ) ) do
+			FlattenedList[#FlattenedList + 1] = Element
+		end
+	end
+	return FlattenedList
+end
+
+function Globals.FlattenTable( List ) -- Works with all tables
+	if type( List ) ~= 'table' then return { List } end
+	local FlattenedList = {}
+	for _, Value in pairs( List ) do
+		for _, Element in pairs( Globals.FlattenTable( Value ) ) do
 			FlattenedList[#FlattenedList + 1] = Element
 		end
 	end
@@ -125,30 +137,31 @@ function Globals.LoadSoundBase64( File, Name ) -- Loads a sound given the base-6
 	return love.audio.newSource( love.sound.newSoundData( love.filesystem.newFileData( File, Name:gsub( '_', '.' ), 'base64' ) ), 'stream' )
 end
 
-function Globals.RemoveHole( Table ) -- Removes nils from tables.
-	local New = {}
-
-	for Index, Value in pairs( Table ) do
-		New[Index] = Value
-	end
-	
-	return New
-end
-
 function Globals.Clamp( Minimum, Maximum, Value ) -- Makes sure a number is between the minimum and the maximum. 
 	return math.max( Minimum, math.min( Maximum, Value ) )
 end
 
-function Globals.Normailize( Minimum, Maximum, Value ) -- Normalize a value (put it on a scale from 0 to 1 )
+function Globals.Normalize( Minimum, Maximum, Value ) -- Normalize a value (put it on a scale from 0 to 1 )
 	return ( Value - Minimum ) / ( Maximum - Minimum )
 end
 
-function Globals.Lerp( Minimum, Maximum, Value ) -- Linerar Interpolate a value (change from a scale from 0 to 1 to a range of values).
+function Globals.Lerp( Minimum, Maximum, Value ) -- Linear Interpolate a value (change from a scale from 0 to 1 to a range of values).
 	return ( Maximum - Minimum ) * Value + Minimum
 end
 
-function Globals.Map( FirstMinimum, FirstMaximum, FinalMinimum, FinalMaximum, Value ) -- Maps from one scale to another.
-	return Globals.Lerp( FinalMinimum, FinalMaximum, Globals.Normalize( Value, FirstMinimum, FirstMaximum ) )
+function Globals.Map( FirstMinimum, FirstMaximum, Value, FinalMinimum, FinalMaximum ) -- Maps from one scale to another.
+	return ( Value - FirstMinimum ) / ( FirstMaximum - FirstMinimum ) * ( FinalMaximum - FinalMinimum ) + FinalMinimum
+end
+
+function Globals.Sign( Number ) 
+	return Number > 0 and 1 or Number < 0 and -1 or 0 
+end
+
+function Globals.BoundingBox( x, y, BoxX, BoxY, BoxW, BoxH )
+	if x > BoxX and x < BoxX + BoxW and y > BoxY and y < BoxY + BoxH then
+		return true
+	end
+	return false
 end
 
 return Globals
