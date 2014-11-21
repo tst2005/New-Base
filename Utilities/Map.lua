@@ -2,15 +2,16 @@ local Base = require 'Source.Entities.Base'
 local Globals = require 'Utilities.Globals'
 local Map = Base:Extend()
 
-function Map.New( Data )
+function Map.New( Data, References, Quad, ImageWidth, ImageHeight )
 	local New = Map:Extend()
 	
-	New.x, New.y, New.Rotation, New.ScaleX, New.ScaleY, New.OffsetX, New.OffsetY, New.ShearingX, New.ShearingY = 0, 0, 0, 1, 1, 0, 0, 0, 0
 	New.Data = Data
-	New.References = {}
-	New.QuadImage = nil
-	New.ImageWidth = nil
-	New.ImageHeight = nil
+	New.References = References 
+	New.QuadImage = Quad or nil
+	
+	local Type = References[1]:type()
+	New.ImageWidth = ( Type == 'Image' and References[1]:getWidth() ) or ImageWidth
+	New.ImageHeight = ( Type == 'Image' and References[1]:getHeight() ) or ImageHeight
 	
 	return New
 end

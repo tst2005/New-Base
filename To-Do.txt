@@ -1,8 +1,5 @@
 - Improve:
+	- Camera: Parallax-Scrolling (http://nova-fusion.com/2011/04/22/cameras-in-love2d-part-2-parallax-scrolling/)
 - Test:
 - Finish/Make:
-	- States
-	- Camera
-	- Scenes
-
-	- MLib.Polygon.PolygonInsidePolygon
+	- Loader (https://github.com/kikito/love-loader)

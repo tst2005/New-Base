@@ -10,12 +10,12 @@ local function MouseMove( Self, x, y )
 end
 
 function Menu.New( x, y, LineSeparation, Font, ... )
-	local New = OldNew( x, y )
-	New.__index = New
-	setmetatable( New, Menu )
+	local New = Menu:Extend()
 	
 	local Texts = { ... }
 	
+	New.x = x
+	New.y = y
 	New.OldMouseX, New.OldMouseY = love.mouse.getX(), love.mouse.getY()
 	
 	New.LineSeparation = LineSeparation or 2
@@ -26,6 +26,7 @@ function Menu.New( x, y, LineSeparation, Font, ... )
 	
 	New.Keys = {}
 	New.Mouse = {}
+	New.PreviouslySelected = nil
 	New.Selected = nil
 	New.DefaultMouseEnabled = true
 	New.DefaultKeyboardEnabled = true
@@ -45,8 +46,10 @@ function Menu.New( x, y, LineSeparation, Font, ... )
 end
 
 function Menu.Draw( Self )
+	if Self.PreviouslySelected then Self.Buttons[Self.PreviouslySelected].IsHovering = false end
+	if Self.Selected then Self.Buttons[Self.Selected].IsHovering = true end
+	Self.PreviouslySelected = Self.Selected
 	for Index, Aspect in ipairs( Self.Buttons ) do
-		if Self.Selected then Self.Buttons[Self.Selected].IsHovering = true end
 		Aspect:Draw()
 	end
 end
@@ -163,9 +166,9 @@ end
 function Menu.IsKeyboardEnabled( Self ) return Self.KeyboardEnabled end
 
 -- Mouse Pressed
-function Button.MousePressed( Self, x, y, Button ) 
+function Menu.MousePressed( Self, x, y, b ) 
 	if Self.DefaultMouseEnabled then Self:SetMouseEnabled( true ); Self:SetKeyboardEnabled( false ) end
-	local Function = Self.Mouse[Button] 
+	local Function = Self.Mouse[b] 
 	if Function and Self.MouseEnabled then
 		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
 			Function( Self, 'OnPress', x, y )
@@ -173,8 +176,8 @@ function Button.MousePressed( Self, x, y, Button )
 	end
 end
 -- Mouse Released
-function Button.MouseReleased( Self, x, y, Button )
-	local Function = Self.Mouse[Button] 
+function Menu.MouseReleased( Self, x, y, b )
+	local Function = Self.Mouse[b] 
 	if Function and Self.MouseEnabled then
 		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
 			Function( Self, 'OnRelease', x, y )
@@ -182,7 +185,7 @@ function Button.MouseReleased( Self, x, y, Button )
 	end
 end
 -- Key Pressed
-function Button.KeyPressed( Self, Key, IsRepeat ) 
+function Menu.KeyPressed( Self, Key, IsRepeat ) 
 	if Self.DefaultKeyboardEnabled then Self:SetKeyboardEnabled( true ); Self:SetMouseEnabled( false ) end
 	local Function = Self.Keys[Key]
 	if Function and Self.KeyboardEnabled then
@@ -190,7 +193,7 @@ function Button.KeyPressed( Self, Key, IsRepeat )
 	end
 end
 -- Key Released
-function Button.KeyReleased( Self, Key, IsRepeat ) 
+function Menu.KeyReleased( Self, Key, IsRepeat ) 
 	local Function = Self.Keys[Key] 
 	if Function and Self.KeyboardEnabled then
 		Function( Self, 'OnRelease', Key, IsRepeat )

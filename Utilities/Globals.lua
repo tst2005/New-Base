@@ -164,4 +164,14 @@ function Globals.BoundingBox( x, y, BoxX, BoxY, BoxW, BoxH )
 	return false
 end
 
+function Globals.Cycle( Index, Increase, Table )
+	Index = Index or 0
+	Increase = Increase or 1
+	
+	local New = Index + Increase
+	if New < 1 then New = #Table 
+	elseif New > #Table then New = 1 end
+	return New
+end
+
 return Globals

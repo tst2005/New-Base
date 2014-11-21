@@ -1,13 +1,12 @@
 local Base = require 'Source.Entities.Base'
 local Button = Base:Extend()
 local Globals = require 'Utilities.Globals'
-local OldNew = Button.New
 
 function Button.New( Text, x, y, Font )
-	local New = OldNew( x, y )
-	New.__index = New
-	setmetatable( New, Button )
+	local New = Button:Extend()
 	
+	New.x = x
+	New.y = y
 	New.Font = Font or love.graphics.getFont()
 	New.Text = Text
 	New.Width, New.Height = New.Font:getWidth( New.Text ), New.Font:getHeight( New.Text )
@@ -51,8 +50,8 @@ function Button.Update( Self, dt )
 	elseif not Self.IsHovering and not Self.WasHovering then
 		Self:NotHover()
 	elseif Self.WasHovering and not Self.IsHovering then
-		local Active = Self:OffHover()
-		if not Active then
+		local Over = Self:OffHover()
+		if Over then
 			Self.WasHovering = false
 		end
 	end
@@ -100,9 +99,9 @@ function Button.BindKey( Self, Key, Function ) Self.Keys[Key] = Function; return
 function Button.UnbindKey( Self, Key ) Self.Keys[Key] = nil; return Self end
 function Button.GetKeyBinding( Self, Key ) return Self.Keys[Key] end
 -- Bind Mouse
-function Button.BindMouse( Self, Button, Function ) Self.Mouse[Button] = Function; return Self end
-function Button.UnbindMouse( Self, Button ) Self.Mouse[Button] = nil; return Self end
-function Button.GetMouseBinding( Self, Button ) return Self.Mouse[Button] end
+function Button.BindMouse( Self, b, Function ) Self.Mouse[b] = Function; return Self end
+function Button.UnbindMouse( Self, b ) Self.Mouse[b] = nil; return Self end
+function Button.GetMouseBinding( Self, b ) return Self.Mouse[b] end
 -- MouseEnabled
 function Button.SetMouseEnabled( Self, Enabled ) Self.MouseEnabled = Enabled; return Self end
 function Button.IsMouseEnabled( Self ) return Self.MouseEnabled end
@@ -114,8 +113,8 @@ function Button.SetOnSelect( Self, Function ) Self.OnSelect = Function; return S
 function Button.GetOnSelect( Self ) return Self.OnSelect end
 
 -- Mouse Pressed
-function Button.MousePressed( Self, x, y, Button ) 
-	local Function = Self.Mouse[Button] 
+function Button.MousePressed( Self, x, y, b ) 
+	local Function = Self.Mouse[b] 
 	if Function and Self.MouseEnabled then
 		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
 			Function( Self, 'OnPress', x, y )
@@ -123,8 +122,8 @@ function Button.MousePressed( Self, x, y, Button )
 	end
 end
 -- Mouse Released
-function Button.MouseReleased( Self, x, y, Button ) 
-	local Function = Self.Mouse[Button] 
+function Button.MouseReleased( Self, x, y, b ) 
+	local Function = Self.Mouse[b] 
 	if Function and Self.MouseEnabled then
 		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
 			Function( Self, 'OnRelease', x, y )
