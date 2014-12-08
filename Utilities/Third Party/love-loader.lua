@@ -194,6 +194,7 @@ else
           requestNewResourceToThread()
         else
           endThreadIfAllLoaded()
+		  return true -- Added by Davis Claiborne
         end
       else
         local errorMessage = loader.thread:getError()

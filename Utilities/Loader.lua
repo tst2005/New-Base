@@ -1,23 +1,23 @@
 local loveloader = require 'Utilities.Third Party.love-loader'
 return { 
-	NewImage = function( Table, Name, Path )
-		loveloader.newImage( Table, Name, Path )
+	newImage = function( t, name, path )
+		loveloader.newImage( t, name, path )
 	end, 
-	NewFont = function( Table, Name, Path, Size )
-		loveloader.newFont( Table, Name, Path )
+	newFont = function( t, name, path, Size )
+		loveloader.newFont( t, name, path, Size )
 	end, 
-	NewSource = function( Table, Name, Path, Type )
-		loveloader.newSource( Table, Name, Path, Type )
+	newSource = function( t, name, path, type )
+		loveloader.newSource( t, name, path, type )
 	end, 
-	NewSoundData = function( Table, Name, PathOrDecoder )
-		loveloader.newSoundData( Table, Name, PathOrDecoder )
+	newSoundData = function( t, name, pathOrDecoder )
+		loveloader.newSoundData( t, name, pathOrDecoder )
 	end, 
-	NewImageData = function( Table, Key, Path )
-		loveloader.newImageData( Table, Key, Path )
+	newImageData = function( t, key, path )
+		loveloader.newImageData( t, key, path )
 	end, 
-	Start = function( OnComplete, OnLoad )
-		loveloader.start( OnComplete, OnLoad )
-		-- OnLoad( Type <String>, Holder <Table>, Key <String> )
+	start = function( onComplete, onLoad )
+		loveloader.start( onComplete, onLoad )
+		-- onLoad( type <String>, Holder <t>, key <String> )
 	end, 
-	Update = function() loveloader.update() end
+	update = function() return loveloader.update() end
 }

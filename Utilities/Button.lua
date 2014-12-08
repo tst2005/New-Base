@@ -1,147 +1,151 @@
 local Base = require 'Source.Entities.Base'
-local Button = Base:Extend()
+local Button = Base:extend()
 local Globals = require 'Utilities.Globals'
 
-function Button.New( Text, x, y, Font )
-	local New = Button:Extend()
+function Button.new( text, x, y, font )
+	local new = Button:extend()
 	
-	New.x = x
-	New.y = y
-	New.Font = Font or love.graphics.getFont()
-	New.Text = Text
-	New.Width, New.Height = New.Font:getWidth( New.Text ), New.Font:getHeight( New.Text )
-	New.OnSelect = function() end
-	New.OnHover = function() end
-	New.OffHover = function() end
-	New.NotHover = function() end
-	New.Keys = {}
-	New.Mouse = {}
-	New.Color = { 255, 255, 255, 255 }
-	New.MouseEnabled = true
-	New.KeyboardEnabled = true
+	new.x = x
+	new.y = y
+	new.font = font or love.graphics.getFont()
+	new.text = text
+	new.width, new.height = new.font:getWidth( new.text ), new.font:getHeight( new.text )
+	new.onSelect = function() end
+	new.onHover = function() end
+	new.offHover = function() end
+	new.notHover = function() end
+	new.keys = {}
+	new.mouse = {}
+	new.color = { 255, 255, 255, 255 }
+	new.isMouseEnabled = true
+	new.isKeyboardEnabled = true
 	
-	New.WidthSet = false
-	New.HeightSet = false
+	new.widthSet = false
+	new.heightSet = false
 	
-	New.IsHovering = false
-	New.WasHovering = false
+	new.isHovering = false
+	new.wasHovering = false
 	
-	return New
+	return new
 end
 
-function Button.Draw( Self )
-	love.graphics.setColor( Self.Color )
-	love.graphics.setFont( Self.Font )
-	love.graphics.print( Self.Text, unpack{ Self:GetDrawingValues() } )
+function Button.draw( self )
+	love.graphics.setColor( self.color )
+	love.graphics.setFont( self.font )
+	love.graphics.print( self.text, unpack{ self:getDrawingValues() } )
 end
 
-function Button.Update( Self, dt )
-	if Self.MouseEnabled then
-		local MouseX, MouseY = love.mouse.getX(), love.mouse.getY()
-		if Globals.BoundingBox( MouseX, MouseY, Self.x, Self.y, Self.Width, Self.Height ) then
-			Self.IsHovering = true
+function Button.update( self, dt )
+	if self.isMouseEnabled then
+		local mouseX, mouseY = love.mouse.getX(), love.mouse.getY()
+		if Globals.boundingBox( mouseX, mouseY, self.x, self.y, self.width, self.height ) then
+			self.isHovering = true
 		else 
-			Self.IsHovering = false
+			self.isHovering = false
 		end
 	end
-	if Self.IsHovering then
-		Self.WasHovering = true
-		Self:OnHover()
-	elseif not Self.IsHovering and not Self.WasHovering then
-		Self:NotHover()
-	elseif Self.WasHovering and not Self.IsHovering then
-		local Over = Self:OffHover()
-		if Over then
-			Self.WasHovering = false
+	if self.isHovering then
+		self.wasHovering = true
+		self:onHover()
+	elseif not self.isHovering and not self.wasHovering then
+		self:notHover()
+	elseif self.wasHovering and not self.isHovering then
+		local over = self:offHover()
+		if over then
+			self.wasHovering = false
 		end
 	end
 end
 
--- Font
-function Button.SetFont( Self, Font )
-	Self.Font = Font
-	if not Self.WidthSet then Self:SetWidth( Self.Font:getWidth( Self.Text ) ) end
-	if not Self.HeightSet then Self:SetHeight( Self.Font:getHeight( Self.Text ) ) end
-	return Self
+-- font
+function Button.setfont( self, font )
+	self.font = font
+	if not self.widthSet then self:setWidth( self.font:getWidth( self.text ) ) end
+	if not self.heightSet then self:setHeight( self.font:getHeight( self.text ) ) end
+	return self
 end
-function Button.GetFont( Self ) return Self.Font end
--- Text
-function Button.SetText( Self, Text )
-	Self.Text = Text
-	if not Self.WidthSet then Self:SetWidth( Self.Font:getWidth( Self.Text ) ) end
-	if not Self.GetWidth then Self:SetHeight( Self.Font:getHeight( Self.Text ) ) end
-	return Self
+function Button.getfont( self ) return self.font end
+-- text
+function Button.setText( self, text )
+	self.text = text
+	if not self.widthSet then self:setWidth( self.font:getWidth( self.text ) ) end
+	if not self.getWidth then self:setHeight( self.font:getHeight( self.text ) ) end
+	return self
 end
-function Button.GetText( Self ) return Self.Text end
--- Width
-function Button.SetWidth( Self, Width ) Self.Width, Self.WidthSet = Width, true; return Self end
-function Button.GetWidth( Self ) return Self.Width end
--- Height
-function Button.SetHeight( Self, Height ) Self.Height, Self.HeightSet = Height, true; return Self end
-function Button.GetHeight( Self ) return Self.Height end
+function Button.getText( self ) return self.text end
+-- width
+function Button.setWidth( self, width ) self.width, self.widthSet = width, true; return self end
+function Button.getWidth( self ) return self.width end
+-- height
+function Button.setHeight( self, height ) self.height, self.heightSet = height, true; return self end
+function Button.getHeight( self ) return self.height end
 -- Dimensions
-function Button.SetDimensions( Self, Width, Height ) Self.Width, Self.Height, Self.WidthSet, Self.HeightSet = Width, Height, true, true; return Self end
-function Button.GetDimensions( Self ) return Self.Width, Self.Height end
+function Button.setDimensions( self, width, height ) self.width, self.height, self.widthSet, self.heightSet = width, height, true, true; return self end
+function Button.getDimensions( self ) return self.width, self.height end
 -- On Select
-function Button.SetOnSelect( Self, Function ) Self.OnSelect = Function; return Self end
-function Button.GetOnSelect( Self ) return Self.OnSelect end
+function Button.setOnSelect( self, func ) self.onSelect = func; return self end
+function Button.getOnSelect( self ) return self.onSelect end
 -- On Hover
-function Button.SetOnHover( Self, Function ) Self.OnHover = Function; return Self end
-function Button.GetOnHover( Self ) return Self.OnHover end
+function Button.setOnHover( self, func ) self.onHover = func; return self end
+function Button.getOnHover( self ) return self.onHover end
 -- Off Hover
-function Button.SetOffHover( Self, Function ) Self.OffHover = Function; return Self end
-function Button.GetOffHover( Self ) return Self.OffHover end
+function Button.setOffHover( self, func ) self.offHover = func; return self end
+function Button.getOffHover( self ) return self.offHover end
 -- Not Hover
-function Button.SetNotHover( Self, Function ) Self.NotHover = Function; return Self end
-function Button.GetNotHover( Self ) return Self.NotHover end
--- Bind Keys
-function Button.BindKey( Self, Key, Function ) Self.Keys[Key] = Function; return Self end
-function Button.UnbindKey( Self, Key ) Self.Keys[Key] = nil; return Self end
-function Button.GetKeyBinding( Self, Key ) return Self.Keys[Key] end
--- Bind Mouse
-function Button.BindMouse( Self, b, Function ) Self.Mouse[b] = Function; return Self end
-function Button.UnbindMouse( Self, b ) Self.Mouse[b] = nil; return Self end
-function Button.GetMouseBinding( Self, b ) return Self.Mouse[b] end
--- MouseEnabled
-function Button.SetMouseEnabled( Self, Enabled ) Self.MouseEnabled = Enabled; return Self end
-function Button.IsMouseEnabled( Self ) return Self.MouseEnabled end
--- KeyboardEnabled
-function Button.SetKeyboardEnabled( Self, Enabled ) Self.KeyboardEnabled = Enabled; return Self end
-function Button.IsKeyboardEnabled( Self ) return Self.KeyboardEnabled end
--- Mouse Select
-function Button.SetOnSelect( Self, Function ) Self.OnSelect = Function; return Self end
-function Button.GetOnSelect( Self ) return Self.OnSelect end
+function Button.setNotHover( self, func ) self.notHover = func; return self end
+function Button.getNotHover( self ) return self.notHover end
+-- Bind keys
+function Button.BindKey( self, key, func ) self.keys[key] = func; return self end
+function Button.UnbindKey( self, key ) self.keys[key] = nil; return self end
+function Button.getKeyBinding( self, key ) return self.keys[key] end
+-- Bind mouse
+function Button.BindMouse( self, b, func ) self.mouse[b] = func; return self end
+function Button.UnbindMouse( self, b ) self.mouse[b] = nil; return self end
+function Button.getMouseBinding( self, b ) return self.mouse[b] end
+-- isMouseEnabled
+function Button.setMouseEnabled( self, Enabled ) self.isMouseEnabled = Enabled; return self end
+function Button.IsMouseEnabled( self ) return self.isMouseEnabled end
+-- isKeyboardEnabled
+function Button.setKeyboardEnabled( self, Enabled ) self.isKeyboardEnabled = Enabled; return self end
+function Button.IsKeyboardEnabled( self ) return self.isKeyboardEnabled end
+-- mouse Select
+function Button.setOnSelect( self, func ) self.onSelect = func; return self end
+function Button.getOnSelect( self ) return self.onSelect end
 
--- Mouse Pressed
-function Button.MousePressed( Self, x, y, b ) 
-	local Function = Self.Mouse[b] 
-	if Function and Self.MouseEnabled then
-		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
-			Function( Self, 'OnPress', x, y )
-		end
+-- center
+function Button.centerX( self ) self.x = ( Globals.screenWidth - self.width ) / 2 end
+function Button.centerY( self ) self.y = ( Globals.screenHeight - self.height ) / 2 end
+function Button.center( self ) 
+	self:centerX()
+	self:centerY()
+end
+
+-- mouse pressed
+function Button.mousePressed( self, x, y, b ) 
+	local func = self.mouse[b] 
+	if func and self.isMouseEnabled then
+		func( self, 'onPress', x, y )
 	end
 end
--- Mouse Released
-function Button.MouseReleased( Self, x, y, b ) 
-	local Function = Self.Mouse[b] 
-	if Function and Self.MouseEnabled then
-		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
-			Function( Self, 'OnRelease', x, y )
-		end
+-- mouse released
+function Button.mouseReleased( self, x, y, b ) 
+	local func = self.mouse[b] 
+	if func and self.isMouseEnabled then
+		func( self, 'onRelease', x, y )
 	end
 end
--- Key Pressed
-function Button.KeyPressed( Self, Key, IsRepeat ) 
-	local Function = Self.Keys[Key]
-	if Function and Self.KeyboardEnabled then
-		Function( Self, 'OnPress', Key, IsRepeat )
+-- key pressed
+function Button.keyPressed( self, key, isRepeat ) 
+	local func = self.keys[key]
+	if func and self.isKeyboardEnabled then
+		func( self, 'onPress', key, isRepeat )
 	end
 end
--- Key Released
-function Button.KeyReleased( Self, Key, IsRepeat ) 
-	local Function = Self.Keys[Key] 
-	if Function and Self.KeyboardEnabled then
-		Function( Self, 'OnRelease', Key, IsRepeat )
+-- key released
+function Button.keyReleased( self, key, isRepeat ) 
+	local func = self.keys[key] 
+	if func and self.isKeyboardEnabled then
+		func( self, 'onRelease', key, isRepeat )
 	end
 end
 

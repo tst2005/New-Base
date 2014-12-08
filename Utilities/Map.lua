@@ -1,54 +1,54 @@
 local Base = require 'Source.Entities.Base'
 local Globals = require 'Utilities.Globals'
-local Map = Base:Extend()
+local Map = Base:extend()
 
-function Map.New( Data, References, Quad, ImageWidth, ImageHeight )
-	local New = Map:Extend()
+function Map.new( data, references, quad, imageWidth, imageHeight )
+	local new = Map:extend()
 	
-	New.Data = Data
-	New.References = References 
-	New.QuadImage = Quad or nil
+	new.data = data
+	new.references = references 
+	new.quadImage = quad or nil
 	
-	local Type = References[1]:type()
-	New.ImageWidth = ( Type == 'Image' and References[1]:getWidth() ) or ImageWidth
-	New.ImageHeight = ( Type == 'Image' and References[1]:getHeight() ) or ImageHeight
+	local _type = references[1]:type()
+	new.imageWidth = ( _type == 'image' and references[1]:getWidth() ) or imageWidth
+	new.imageHeight = ( _type == 'image' and references[1]:getHeight() ) or imageHeight
 	
-	return New
+	return new
 end
 
--- Data
-function Map.SetData( Self, Data ) Self.Data = Data return Self end
-function Map.GetData( Self, Data ) return Self.Data end
--- References
-function Map.SetReferences( Self, References ) Self.References = References return Self end
-function Map.GetReferences( Self ) return Self.References end
+-- data
+function Map.setData( self, data ) self.data = data return self end
+function Map.getData( self, data ) return self.data end
+-- references
+function Map.setReferences( self, references ) self.references = references return self end
+function Map.getReferences( self ) return self.references end
 -- Width
-function Map.SetImageWidth( Self, Width ) Self.ImageWidth = Width return Self end
-function Map.GetImageWidth( Self ) return Self.ImageWidth end
+function Map.setImageWidth( self, width ) self.imageWidth = width return self end
+function Map.getImageWidth( self ) return self.imageWidth end
 -- Height
-function Map.SetImageHeight( Self, Height ) Self.ImageHeight = Height return Self end
-function Map.GetImageHeight( Self ) return Self.ImageHeight end
+function Map.setImageHeight( self, height ) self.imageHeight = height return self end
+function Map.getImageHeight( self ) return self.imageHeight end
 -- Tiles
-function Map.GetTileIndex( Self, x, y ) 
-	local x = math.ceil( ( x - Self.x ) / Self.ImageWidth )
-	local y = math.ceil( ( y - Self.y ) / Self.ImageHeight )
-	local Boolean = not not ( Self.Data[y] and Self.Data[y][x] ) 
-	return Boolean and x, Boolean and y 
+function Map.getTileIndex( self, x, y ) 
+	local x = math.ceil( ( x - self.x ) / self.imageWidth )
+	local y = math.ceil( ( y - self.y ) / self.imageHeight )
+	local boolean = not not ( self.data[y] and self.data[y][x] ) 
+	return boolean and x, boolean and y 
 end
-function Map.SetTile( Self, x, y, Index ) Self.Data[y][x] = Index return Self end
-function Map.GetTile( Self, x, y ) return ( Self.Data[y] and Self.Data[x] ) and Self.Data[y][x] end
+function Map.setTile( self, x, y, Index ) self.data[y][x] = Index return self end
+function Map.getTile( self, x, y ) return ( self.data[y] and self.data[x] ) and self.data[y][x] end
 
 -- Draw
-function Map.Draw( Self )
-	local X, Y, Rotation, ScaleX, ScaleY, OffsetX, OffsetY, ShearingX, ShearingY = Self:GetDrawingValues()
-	for y, Row in ipairs( Self.Data ) do
-		for x, Value in ipairs( Row ) do
-			local Image = Self.References[Value]
-			local TileX, TileY = Self.ImageWidth * ( x - 1 ) + X, Self.ImageHeight * ( y - 1 ) + Y
-			if Image:type() == 'Image' then 
-				love.graphics.draw( Image, TileX, TileY, Rotation, ScaleX, ScaleY, OffsetX, OffsetY, ShearingX, ShearingY )
-			else -- Quad / Error Checking
-				love.graphics.draw( Self.QuadImage, Image, TileX, TileY, Rotation, ScaleX, ScaleY, OffsetX, OffsetY, ShearingX, ShearingY )
+function Map.draw( self )
+	local X, Y, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY = self:getDrawingValues()
+	for y, row in ipairs( self.data ) do
+		for x, value in ipairs( row ) do
+			local image = self.references[value]
+			local TileX, TileY = self.imageWidth * ( x - 1 ) + X, self.imageHeight * ( y - 1 ) + Y
+			if image:type() == 'image' then 
+				love.graphics.draw( image, TileX, TileY, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY )
+			else -- quad / Error Checking
+				love.graphics.draw( self.quadImage, image, TileX, TileY, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY )
 			end
 		end
 	end

@@ -1,113 +1,115 @@
-local Base = require 'Source.Entities.Base'
+local Animation = {}
+Animation.__index = Animation
+
 local Timer = require 'Utilities.Timer'
-local Animation = Base:Extend()
 
-local function ChangeIndex( Self, Iterator )
-	Iterator = Iterator or 1
-	Self.Index = Self.Index + Iterator
+local function changeIndex( self, iterator )
+	iterator = iterator or 1
+	self.index = self.index + iterator
 	
-	if Self.Delays[Self.Index] then
-		Self:Reload()
+	if self.delays[self.index] then
+		self:reload()
 	else
-		if Self.Looping then
-			Self.TimesRepeated = Self.TimesRepeated + 1
-			Self.TotalElapsedTime = 0
-			Self.Index = 1
-			Self:Reload()
+		if self.looping then
+			self.timesRepeated = self.timesRepeated + 1
+			self.totalElapsedTime = 0
+			self.index = 1
+			self:reload()
 		end
-		Self.OnComplete( Self.TimesRepeated )
+		self.onComplete( self.timesRepeated )
 	end
 end
 
-local function CheckForQuads( Images, Quad )
-	for Index = 1, #Images do
-		local Type = Images[Index]:type()
-		assert( Quad and Type, 'Animation Error: Quad-images passed with no Quad reference!' )
+local function checkForQuads( images, quad )
+	for index = 1, #images do
+		local type = images[index]:type()
+		assert( quad and type, 'Animation Error: quad-images passed with no quad reference!' )
 	end
 end
 
-function Animation.New( Images, Delays, Quad ) 
-	local New = Animation:Extend() 
-
-	New.Images = Images
-	New.Delays = Delays
-	New.Length = #New.Images
-	New.Index = 1
-	New.Looping = false
-	New.Quad = Quad or nil
-	New.Active = true
-	New.Timer = Timer.After( Delays[New.Index], ChangeIndex, New )
-	New.Image = New.Images[1]
-	New.TotalElapsedTime = 0 	-- NOTE: Resets on-loop.
-	New.EntireTime = 0
-	New.OnComplete = function() end
-	New.TimesRepeated = 0
+function Animation.new( images, delays, quad ) 
+	local New = { 
+		images = images, 
+		delays = delays, 
+		length = #images, 
+		index = 1, 
+		looping = false, 
+		quad = quad or nil, 
+		active = true, 
+		image = images[1], 
+		totalElapsedTime = 0, 	-- NOTE: Resets on-loop.
+		entireTime = 0, 
+		onComplete = function() end, 
+		timesRepeated = 0, 
+	}
 	
-	CheckForQuads( New.Images, New.Quad )
+	New.timer = Timer.after( New.delays[New.index], changeIndex, New )
+	checkForQuads( New.images, New.quad )
 
+	setmetatable( New, Animation )
 	return New
 end
 
-function Animation.Reload( Self )
-	Self.Timer = Timer.After( Self.Delays[Self.Index], ChangeIndex, Self )
-	Self.Image = Self.Images[Self.Index]
+function Animation.reload( self )
+	self.timer = Timer.after( self.delays[self.index], changeIndex, self )
+	self.image = self.images[self.index]
 end
 
-function Animation.Update( Self, dt )
-	if Self.Active then
-		Self.TotalElapsedTime = Self.TotalElapsedTime + dt
-		Self.EntireTime = Self.EntireTime + dt
-		Self.Timer:Update( dt )
+function Animation.update( self, dt )
+	if self.active then
+		self.totalElapsedTime = self.totalElapsedTime + dt
+		self.entireTime = self.entireTime + dt
+		self.timer:update( dt )
 	end
 end
 
-function Animation.Draw( Self )
-	if Self.Active and Self.Image then
-		local Type = Self.Image:type()
+function Animation.draw( self, x, y, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY )
+	if self.active and self.image then
+		local type = self.image:type()
 		
-		if Type == 'Image' then
-			love.graphics.draw( Self.Image, Self.x, Self.y, Self.Rotation, Self.ScaleX, Self.ScaleY, Self.OffsetX, Self.OffsetY, Self.ShearingX, Self.ShearingY )
-		elseif Type == 'Quad' then
-			love.graphics.draw( Self.Quad, Self.Image, Self.x, Self.y, Self.Rotation, Self.ScaleX, Self.ScaleY, Self.OffsetX, Self.OffsetY, Self.ShearingX, Self.ShearingY )
+		if type == 'Image' then
+			love.graphics.draw( self.image, x, y, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY )
+		elseif type == 'Quad' then
+			love.graphics.draw( self.quad, self.image, x, y, rotation, scaleX, scaleY, offsetX, offsetY, shearingX, shearingY )
 		end
 	end
 end
 
--- Images
-function Animation.SetImages( Self, Images ) Self.Images = Images; return Self end
-function Animation.GetImages( Self ) return Self.Images end
--- Delays
-function Animation.SetDelays( Self, Delays ) Self.Delays = Delays; return Self end
-function Animation.GetDelays( Self ) return Self.Delays end
--- Length
-function Animation.SetLength( Self, Length ) Self.Length = Length; return Self end
-function Animation.GetLength( Self ) return Self.Length end
--- Index
-function Animation.SetIndex( Self, Index ) Self.Index = Index; return Self end
-function Animation.GetIndex( Self ) return Self.Index end
--- Looping
-function Animation.SetLooping( Self, Looping ) if Looping == nil then Self.Looping = true else Self.Looping = Looping end; return Self end
-function Animation.IsLooping( Self ) return Self.Looping end
--- Quad
-function Animation.SetQuadImage( Self, QuadImage ) Self.Quad = QuadImage; return Self end
-function Animation.GetQuadImage( Self ) return Self.QuadImage end
--- Active
-function Animation.SetActive( Self, Active ) Self.Active = Active; return Self end
-function Animation.GetActive( Self ) return Self.Active end
+-- images
+function Animation.setImages( self, images ) self.images = images; return self end
+function Animation.getImages( self ) return self.images end
+-- delays
+function Animation.setDelays( self, delays ) self.delays = delays; return self end
+function Animation.getDelays( self ) return self.delays end
+-- length
+function Animation.setLength( self, length ) self.length = length; return self end
+function Animation.getlength( self ) return self.length end
+-- index
+function Animation.setIndex( self, index ) self.index = index; return self end
+function Animation.getIndex( self ) return self.index end
+-- looping
+function Animation.setLooping( self, looping ) if looping == nil then self.looping = true else self.looping = looping end; return self end
+function Animation.isLooping( self ) return self.looping end
+-- quad
+function Animation.setQuadImage( self, quadImage ) self.quad = quadImage; return self end
+function Animation.getQuadImage( self ) return self.quadImage end
+-- active
+function Animation.setActive( self, active ) self.active = active; return self end
+function Animation.getActive( self ) return self.active end
 -- Timer
-function Animation.SetTimer( Self, Timer ) Self.Timer = Timer; return Self end
-function Animation.GetTimer( Self ) return Self.Timer end
--- Image
-function Animation.SetCurrentImage( Self, CurrentImage ) Self.Image = CurrentImage; return Self end
-function Animation.GetCurrentImage( Self ) return Self.CurrentImage end
--- Total Elapsed Time
-function Animation.SetTotalElapsedTime( Self, Time ) Self.TotalElapsedTime = Time; return Self end
-function Animation.GetTotalElapsedTime( Self ) return Self.TotalElapsedTime end
--- Entire Time
-function Animation.SetEntireTime( Self, Time ) Self.EntireTime = Time; return Self end
-function Animation.GetEntireTime( Self ) return Self.EntireTime end
+function Animation.setTimer( self, Timer ) self.Timer = Timer; return self end
+function Animation.getTimer( self ) return self.Timer end
+-- image
+function Animation.setCurrentImage( self, curretImage ) self.image = curretImage; return self end
+function Animation.getCurrentImage( self ) return self.image end
+-- Total Elapsed time
+function Animation.setTotalElapsedtime( self, time ) self.totalElapsedtime = time; return self end
+function Animation.getTotalElapsedtime( self ) return self.totalElapsedtime end
+-- Entire time
+function Animation.setentireTime( self, time ) self.entireTime = time; return self end
+function Animation.getentireTime( self ) return self.entireTime end
 -- On Complete
-function Animation.SetOnComplete( Self, Function ) Self.OnComplete = Function end
-function Animation.GetOnComplate( Self ) return Self.OnComplete end
+function Animation.setOnComplete( self, f ) self.onComplete = f end
+function Animation.getOnComplete( self ) return self.onComplete end
 
 return Animation

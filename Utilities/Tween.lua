@@ -1,46 +1,46 @@
 local tween = require 'Utilities.Third Party.tween'
-local OriginalMeta = getmetatable( tween.new( 1, { 1 }, { 1 } ) )
+local originalMeta = getmetatable( tween.new( 1, { 1 }, { 1 } ) )
 local Tween = {}
 Tween.__index = Tween
-setmetatable( Tween, OriginalMeta )
-Tween.Easing = tween.easing
+setmetatable( Tween, originalMeta )
+Tween.easing = tween.easing
 
 -- tween.lua functions
-function Tween.New( Time, Subject, Target, Easing )
-	local New = tween.new( Time, Subject, Target, Easing )
-	New.__index = Tween
-	setmetatable( New, Tween )
-	return New
+function Tween.new( time, subject, target, easing )
+	local new = tween.new( time, subject, target, easing )
+	new.__index = Tween
+	setmetatable( new, Tween )
+	return new
 end
 
-function Tween.Update( Self, dt )
-	return Self:update( dt )
+function Tween.update( self, dt )
+	return self:update( dt )
 end
 
-function Tween.Set( Self, Clock )
-	return Self:set( Clock )
+function Tween.set( self, clock )
+	return self:set( clock )
 end
 
-function Tween.Reset( Self )
-	Self:reset()
+function Tween.reset( self )
+	self:reset()
 end
 
--- Duration
-function Tween.SetDuration( Self, Duration ) Self.duration = Duration; return Self end
-function Tween.GetDuration( Self ) return Self.duration end
+-- duration
+function Tween.setDuration( self, duration ) self.duration = duration; return self end
+function Tween.getDuration( self ) return self.duration end
 -- Subject
-function Tween.SetSubject( Self, Table ) Self.subject = Table; return Self end
-function Tween.GetSubject( Self ) return Self.subject end
+function Tween.setSubject( self, t ) self.subject = t; return self end
+function Tween.getSubject( self ) return self.subject end
 -- Target
-function Tween.SetTarget( Self, Table ) Self.target = Table; return Self end
-function Tween.GetTarget( Self ) return Self.target end
+function Tween.setTarget( self, t ) self.target = t; return self end
+function Tween.getTarget( self ) return self.target end
 -- Easing
-function Tween.SetEasing( Self, Type ) Self.easing = Type; return Self end
-function Tween.GetEasing( Self ) return Self.easing end
+function Tween.setEasing( self, type ) self.easing = type; return self end
+function Tween.getEasing( self ) return self.easing end
 -- Initial
-function Tween.SetInitial( Self, Values ) Self.initial = Values; return Self end
-function Tween.GetInitial( Self ) return Self.initial end
--- Clock
-function Tween.GetTime( Self ) return Self.clock end
+function Tween.setInitial( self, values ) self.initial = values; return self end
+function Tween.getInitial( self ) return self.initial end
+-- clock
+function Tween.getTime( self ) return self.clock end
 
 return Tween

@@ -1,203 +1,245 @@
 local Base = require 'Source.Entities.Base'
 local Button = require 'Utilities.Button'
 local Globals = require 'Utilities.Globals'
-local Menu = Button:Extend()
-local OldNew = Base.New
+local Menu = Button:extend()
+local oldnew = Base.new
 
-local function MouseMove( Self, x, y )
-	if x ~= Self.OldX or y ~= Self.OldY then return true end
+local function hasMouseMoved( self, x, y )
+	if x ~= self.oldX or y ~= self.oldY then return true end
 	return false
 end
 
-function Menu.New( x, y, LineSeparation, Font, ... )
-	local New = Menu:Extend()
+function Menu.new( x, y, lineSeparation, font, ... )
+	local new = Menu:extend()
 	
-	local Texts = { ... }
+	local texts = { ... }
 	
-	New.x = x
-	New.y = y
-	New.OldMouseX, New.OldMouseY = love.mouse.getX(), love.mouse.getY()
+	new.x = x
+	new.y = y
+	new.oldMouseX, new.oldMouseY = love.mouse.getX(), love.mouse.getY()
 	
-	New.LineSeparation = LineSeparation or 2
-	New.Font = Font or love.graphics.getFont()
-	New.DefaultOnHover = function() end
-	New.DefaultOffHover = function() end
-	New.DefaultNotHover = function() end
+	new.lineSeparation = lineSeparation or 2
+	new.font = font or love.graphics.getFont()
+	new.defaultOnHover = function() end
+	new.defaultOffHover = function() end
+	new.defaultNotHover = function() end
 	
-	New.Keys = {}
-	New.Mouse = {}
-	New.PreviouslySelected = nil
-	New.Selected = nil
-	New.DefaultMouseEnabled = true
-	New.DefaultKeyboardEnabled = true
-	New.MouseEnabled = true
-	New.KeyboardEnabled = false
+	new.keys = {}
+	new.mouse = {}
+	new.previouslySelected = nil
+	new.selected = nil
+	new._isDefaultMouseEnabled = true
+	new._isDefaultKeyboardEnabled = true
+	new._isMouseEnabled = true
+	new._isKeyboardEnabled = false
 	
-	New.Buttons = {}
-	local WorkingY = y
-	for Index = 1, #Texts do
-		local Temp = Button.New( Texts[Index], New.x, WorkingY, New.Font )
+	new.buttons = {}
+	local workingY = y
+	for index = 1, #texts do
+		local temp = Button.new( texts[index], new.x, workingY, new.font )
 		
-		New.Buttons[Index] = Temp
-		WorkingY = WorkingY + Temp.Height + New.LineSeparation
+		new.buttons[index] = temp
+		workingY = workingY + temp.height + new.lineSeparation
 	end
 	
-	return New
+	return new
 end
 
-function Menu.Draw( Self )
-	if Self.PreviouslySelected then Self.Buttons[Self.PreviouslySelected].IsHovering = false end
-	if Self.Selected then Self.Buttons[Self.Selected].IsHovering = true end
-	Self.PreviouslySelected = Self.Selected
-	for Index, Aspect in ipairs( Self.Buttons ) do
-		Aspect:Draw()
+function Menu.draw( self )
+	if self.previouslySelected then self.buttons[self.previouslySelected].isHovering = false end
+	if self.selected then self.buttons[self.selected].isHovering = true end
+	self.previouslySelected = self.selected
+	for index, aspect in ipairs( self.buttons ) do
+		aspect:draw()
 	end
 end
 
-function Menu.Update( Self, dt )
+function Menu.update( self, dt )
 	local x, y = love.mouse.getX(), love.mouse.getY()
-	if MouseMove( Self, x, y ) and Self.DefaultMouseEnabled then Self:SetMouseEnabled( true ); Self:SetKeyboardEnabled( false ) end
-	Self.OldX, Self.OldY = x, y
-	
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:Update( dt )
+	if hasMouseMoved( self, x, y ) and self._isDefaultMouseEnabled then 
+		self:setMouseEnabled( true )
+		self:setKeyboardEnabled( false ) 
 	end
+	self.oldX, self.oldY = x, y
+	
+	local selected
+	for index, aspect in ipairs( self.buttons ) do
+		if self._isMouseEnabled then
+			if Globals.boudingBox( x, y, aspect.x, aspect.y, aspect.width, aspect.height ) then
+				selected = index
+			end
+		end
+		aspect:update( dt )
+	end
+	if not self._isKeyboardEnabled then self.selected = selected end
 end
 
--- Line Separation
-function Menu.SetLineSeparation( Self, Separation ) 
-	Self.LineSeparation = Separation
+-- line Separation
+function Menu.setlineSeparation( self, separation ) 
+	self.lineSeparation = separation
 	
-	local WorkingY = Self:GetY()
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetY( WorkingY )
-		WorkingY = WorkingY + Aspect.Height + Self.LineSeparation
+	local workingY = self:getY()
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setY( workingY )
+		workingY = workingY + aspect.height + self.lineSeparation
 	end
 	
-	return Self 
+	return self 
 end
-function Menu.GetLineSeparation( Self ) return Self.LineSeparation end
--- Font
-function Menu.SetFont( Self, Font )
-	Self.Font = Font
+function Menu.getlineSeparation( self ) return self.lineSeparation end
+-- font
+function Menu.setFont( self, font )
+	self.font = font
 	
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetFont( Font )
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setFont( font )
 	end
 	
-	return Self
+	return self
 end
-function Menu.GetFont( Self ) return Self.Font end
--- Default On Hover
-function Menu.SetDefaultOnHover( Self, Function )
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetOnHover( Function )
+function Menu.getFont( self ) return self.font end
+-- default On Hover
+function Menu.setDefaultOnHover( self, func )
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setOnHover( func )
 	end
-	Self.DefaultOnHover = Function
-	return Self
+	self.defaultOnHover = func
+	return self
 end
-function Menu.GetDefaultOnHover( Self ) return Self.DefaultOnHover end
--- Default Off Hover
-function Menu.SetDefaultOffHover( Self, Function ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetOffHover( Function )
+function Menu.getDefaultOnHover( self ) return self.defaultOnHover end
+-- default Off Hover
+function Menu.setDefaultOffHover( self, func ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setOffHover( func )
 	end
-	Self.DefaultOffHover = Function
-	return Self
+	self.defaultOffHover = func
+	return self
 end
-function Menu.GetDefaultOffHover( Self ) return Self.DefaultOffHover end
--- Default Not Hover
-function Menu.SetDefaultNotHover( Self, Function ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetNotHover( Function )
+function Menu.getDefaultOffHover( self ) return self.defaultOffHover end
+-- default Not Hover
+function Menu.setDefaultNotHover( self, func ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setNotHover( func )
 	end
-	Self.DefaultNotHover = Function
-	return Self
+	self.defaultNotHover = func
+	return self
 end
-function Menu.GetDefaultNotHover( Self ) return Self.DefaultNotHover end
--- Selected
-function Menu.SetSelected( Self, Index ) Self.Selected = Index; return Self end
-function Menu.GetSelected( Self ) return Self.Selected end
--- Default Mouse Enabled
-function Menu.SetDefaultMouseEnabled( Self, Enabled ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetMouseEnabled( Enabled )
+function Menu.getDefaultNotHover( self ) return self.defaultNotHover end
+-- selected
+function Menu.setSelected( self, index ) self.selected = index; return self end
+function Menu.getSelected( self ) return self.selected end
+-- default mouse Enabled
+function Menu.setDefaultMouseEnabled( self, enabled ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setMouseEnabled( enabled )
 	end
-	Self.DefaultMouseEnabled = Enabled
+	self._isDefaultMouseEnabled = enabled
 	
-	Self.DefaultKeyboardEnabled = not Enabled or Self.DefaultKeyboardEnabled
-	Self.KeyboardEnabled = not Enabled or ( Self.DefaultKeyboardEnabled or Self.KeyboardEnabled )
+	self._isDefaultKeyboardEnabled = not enabled or self._isDefaultKeyboardEnabled
+	self._isKeyboardEnabled = not enabled or ( self._isDefaultKeyboardEnabled or self.isKeyboardEnabled )
 	
-	return Self 
+	return self 
 end
-function Menu.IsMouseEnabled( Self ) return Self.MouseEnabled end
--- Default Keyboard Enabled
-function Menu.SetDefaultKeyboardEnabled( Self, Enabled ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetKeyboardEnabled( Enabled )
+function Menu.isDefaultMouseEnabled( self ) return self._isDefaultMouseEnabled end
+-- default Keyboard Enabled
+function Menu.setDefaultKeyboardEnabled( self, enabled ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setKeyboardEnabled( enabled )
 	end
-	Self.DefaultKeyboardEnabled = Enabled
+	self._isDefaultKeyboardEnabled = enabled
 	
-	Self.DefaultMouseEnabled = not Enabled or Self.DefaultMouseEnabled
-	Self.MouseEnabled = not Enabled or ( Self.DefaultMouseEnabled or Self.MouseEnabled )
+	self._isDefaultMouseEnabled = not enabled or self._isDefaultMouseEnabled
+	self._isMouseEnabled = not enabled or ( self._isDefaultMouseEnabled or self._isMouseEnabled )
 	
-	return Self 
+	return self 
 end
-function Menu.IsKeyboardEnabled( Self ) return Self.KeyboardEnabled end
--- Mouse Enabled
-function Menu.SetMouseEnabled( Self, Enabled ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetMouseEnabled( Enabled )
+function Menu.isDefaultKeyboardEnabled( self ) return self._isDefaultKeyboardEnabled end
+-- mouse Enabled
+function Menu.setMouseEnabled( self, enabled ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setMouseEnabled( enabled )
 	end
-	Self.MouseEnabled = Enabled
+	self._isMouseEnabled = enabled
 	
-	return Self 
+	return self 
 end
-function Menu.IsMouseEnabled( Self ) return Self.MouseEnabled end
--- Keyboard Enabled
-function Menu.SetKeyboardEnabled( Self, Enabled ) 
-	for _, Aspect in ipairs( Self.Buttons ) do
-		Aspect:SetKeyboardEnabled( Enabled )
+function Menu.isMouseEnabled( self ) return self._isMouseEnabled end
+-- Keyboard enabled
+function Menu.setKeyboardEnabled( self, enabled ) 
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setKeyboardEnabled( enabled )
 	end
-	Self.KeyboardEnabled = Enabled
+	self._isKeyboardEnabled = enabled
 	
-	return Self 
+	return self 
 end
-function Menu.IsKeyboardEnabled( Self ) return Self.KeyboardEnabled end
+function Menu.IsKeyboardEnabled( self ) return self._isKeyboardEnabled end
 
--- Mouse Pressed
-function Menu.MousePressed( Self, x, y, b ) 
-	if Self.DefaultMouseEnabled then Self:SetMouseEnabled( true ); Self:SetKeyboardEnabled( false ) end
-	local Function = Self.Mouse[b] 
-	if Function and Self.MouseEnabled then
-		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
-			Function( Self, 'OnPress', x, y )
-		end
+-- Center
+function Menu.CenterX( self )
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:CenterX()
+	end
+	return self
+end
+function Menu.CenterY( self )
+	local height = 0
+	for index = 1, #self.buttons do
+		local aspect = self.buttons[index]
+		height = height + aspect.height + self.lineSeparation
+	end
+	local OriginY = ( Globals.Screenheight - height ) / 2
+	local workingY = OriginY
+	for _, aspect in ipairs( self.buttons ) do
+		aspect:setY( workingY )
+		workingY = workingY + aspect.height + self.lineSeparation
+	end
+	return self
+end
+function Menu.Center( self )
+	self:CenterX()
+	self:CenterY()
+	return self
+end
+
+-- mouse Pressed
+function Menu.mousePressed( self, x, y, b ) 
+	if self._isDefaultMouseEnabled then self:setMouseEnabled( true ); self:setKeyboardEnabled( false ) end
+	local func = self.mouse[b] 
+	if func and self._isMouseEnabled then
+		func( self, 'OnPress', x, y )
 	end
 end
--- Mouse Released
-function Menu.MouseReleased( Self, x, y, b )
-	local Function = Self.Mouse[b] 
-	if Function and Self.MouseEnabled then
-		if Globals.BoundingBox( x, y, Self.x, Self.y, Self.Width, Self.Height ) then
-			Function( Self, 'OnRelease', x, y )
-		end
+-- mouse Released
+function Menu.mouseReleased( self, x, y, b )
+	local func = self.mouse[b] 
+	if func and self._isMouseEnabled then
+		func( self, 'OnRelease', x, y )
 	end
 end
 -- Key Pressed
-function Menu.KeyPressed( Self, Key, IsRepeat ) 
-	if Self.DefaultKeyboardEnabled then Self:SetKeyboardEnabled( true ); Self:SetMouseEnabled( false ) end
-	local Function = Self.Keys[Key]
-	if Function and Self.KeyboardEnabled then
-		Function( Self, 'OnPress', Key, IsRepeat )
+function Menu.keyPressed( self, key, isRepeat ) 
+	if self._isDefaultKeyboardEnabled then self:setKeyboardEnabled( true ); self:setMouseEnabled( false ) end
+	local func = self.keys[key]
+	if func and self._isKeyboardEnabled then
+		func( self, 'OnPress', key, isRepeat )
 	end
 end
 -- Key Released
-function Menu.KeyReleased( Self, Key, IsRepeat ) 
-	local Function = Self.Keys[Key] 
-	if Function and Self.KeyboardEnabled then
-		Function( Self, 'OnRelease', Key, IsRepeat )
+function Menu.keyReleased( self, key, isRepeat ) 
+	local func = self.keys[Key] 
+	if func and self._isKeyboardEnabled then
+		func( self, 'OnRelease', key, isRepeat )
 	end
+end
+-- Bind buttons
+function Menu.bindButtonOnSelect( self, index, func )
+	self.buttons[index]:setOnSelect( func )
+	return self
+end
+function Menu.bindButtonOffSelect( self, index, func )
+	self.buttons[index]:setOffSelect( func )
+	return self
 end
 
 return Menu

@@ -1,68 +1,66 @@
 -- Global Tables
 local Globals = {}
 
-Globals.Images = {}
+Globals.utility = 'Utilities.'
+Globals.thirdParty = 'Utilities.Third Party.'
 
-Globals.Utility = 'Utilities.'
-Globals.ThirdParty = 'Utilities.Third Party.'
+Globals.hasCanvas = love.graphics.isSupported( 'canvas' )
+Globals.hasPo2 = love.graphics.isSupported( 'npot' )
+Globals.screenWidth = love.graphics.getWidth()
+Globals.screenHeight = love.graphics.getHeight()
 
-Globals.HasCanvas = love.graphics.isSupported( 'canvas' )
-Globals.HasPo2 = love.graphics.isSupported( 'npot' )
-Globals.ScreenWidth = love.graphics.getWidth()
-Globals.SreenHeight = love.graphics.getHeight()
-
-function Globals.TrimSpaces( String ) -- Removes extra spaces from the end of a word. 
-	return ( String:gsub( '^%s*(.-)%s*$', '%1' ) )
+function Globals.trimSpaces( str ) -- Removes extra spaces from the end of a word. 
+	return ( str:gsub( '^%s*(.-)%s*$', '%1' ) )
 end
 
-function Globals.SetToCanvas( Width, Height, Function ) -- Sets a picture to canvas, handling Po2 problems. 
-	if not Globals.HasCanvas then return false end
-	if not Globals.HasPo2 then
-		Width, Height = Globals.FormatPo2( Width ), Globals.FormatPo2( Height )
+function Globals.setToCanvas( width, height, func ) -- Sets a picture to canvas, handling Po2 problems. 
+	if not Globals.hasCanvas then return false end
+	if not Globals.hasPo2 then
+		width, height = Globals.formatPo2( width ), Globals.formatPo2( height )
 	end
-	local Canvas = love.graphics.newCanvas( Width, Height )
-	love.graphics.setCanvas( Canvas )
-		Function()
+	local canvas = love.graphics.newCanvas( width, height )
+	love.graphics.setCanvas( canvas )
+		func()
 	love.graphics.setCanvas()
-	return Canvas
+	return canvas
 end
 
-function Globals.FormatPo2( Goal ) -- Makes numbers Po2 compatible. 
-	local Number = 1
-	while Goal < Number do
-		Number = Number * 2
+function Globals.formatPo2( goal ) -- Makes numbers Po2 compatible. 
+	local number = 1
+	while number < goal do
+		number = number * 2
 	end
-	return Number
+	return number
 end
 
-function Globals.DeepCopy( Table, Cache ) -- Makes a deep copy of a table. 
-    if type( Table ) ~= 'table' then
-        return Table
+function Globals.deepCopy( t, cache ) -- Makes a deep copy of a table. 
+    if type( t ) ~= 'table' then
+        return t
     end
 
-    Cache = Cache or {}
-    if Cache[Table] then
-        return Cache[Table]
+    cache = cache or {}
+    if cache[t] then
+        return cache[t]
     end
 
-    local New = {}
-    Cache[Table] = New
-    for Key, Value in pairs( Table ) do
-        New[Globals.DeepCopy( Key, Cache)] = Globals.DeepCopy( Value, Cache )
+    local new = {}
+    cache[t] = new
+    for key, value in pairs( t ) do
+        new[Globals.deepCopy( key, cache )] = Globals.deepCopy( value, cache )
     end
 
-    return New
+    return new
 end
 
-function Globals.GetSizeOfTable( Table ) -- Gets the actual size of a table. 
-	local Amount = 0
-	for _, _ in pairs( Table ) do
-		Amount = Amount + 1
+function Globals.getSizeOfTable( t ) -- Gets the actual size of a table. 
+	local amount = 0
+	for _, _ in pairs( t ) do
+		amount = amount + 1
 	end
-	return Amount
+	return amount
 end
 
-function Globals.GetIndex( Table, Function ) -- Returns a number and it's index given a function. 
+function Globals.getIndex( t, func ) -- Returns a number and it's index given a function. 
 	--[[
 		Example:
 		
@@ -70,108 +68,108 @@ function Globals.GetIndex( Table, Function ) -- Returns a number and it's index 
 		LargestNumber, Reference = GetIndex( Numbers, function ( Value1, Value2 ) return Value1 > Value2 end ) 
 		print( LargestNumber, Reference ) --> 10, 5
 	]]
-    if #Table == 0 then return nil, nil end
-    local Key, Value = 1, Table[1]
-    for Index = 2, #Table do
-        if Function( Value, Table[Index] ) then
-            Key, Value = Index, Table[Index]
+    if #t == 0 then return nil, nil end
+    local key, value = 1, t[1]
+    for index = 2, #t do
+        if func( value, t[index] ) then
+            key, value = index, t[index]
         end
     end
-    return Value, Key
+    return value, key
 end
 
-function Globals.CheckUserdata( ... ) -- Handles variable-input. 
-	local Userdata = {}
-	if ... then 
-		if type( ... ) ~= 'table' then Userdata = { ... } else Userdata = ... end 
+function Globals.checkUserdata( ... ) -- Handles variable-input. 
+	local userdata = {}
+	if ... then -- Keep it from erring on an empty table.
+		if type( ... ) ~= 'table' then userdata = { ... } else userdata = ... end 
 	end
-	return Userdata
+	return userdata
 end
 
-function Globals.FlattenArray( List ) -- Flattens an array so that all information is at one level (no nested tables). 
-	if type( List ) ~= 'table' then return { List } end
-	local FlattenedList = {}
-	for _, Value in ipairs( List ) do
-		for _, Element in ipairs( Globals.FlattenArray( Value ) ) do
-			FlattenedList[#FlattenedList + 1] = Element
+function Globals.flattenArray( list ) -- Flattens an array so that all information is at one level (no nested tables). 
+	if type( list ) ~= 'table' then return { list } end
+	local flattenedList = {}
+	for _, value in ipairs( fist ) do
+		for _, element in ipairs( Globals.flattenArray( value ) ) do
+			flattenedList[#flattenedList + 1] = element
 		end
 	end
-	return FlattenedList
+	return flattenedList
 end
 
-function Globals.FlattenTable( List ) -- Works with all tables
-	if type( List ) ~= 'table' then return { List } end
-	local FlattenedList = {}
-	for _, Value in pairs( List ) do
-		for _, Element in pairs( Globals.FlattenTable( Value ) ) do
-			FlattenedList[#FlattenedList + 1] = Element
+function Globals.flattenTable( list ) -- Works with all tables
+	if type( list ) ~= 'table' then return { list } end
+	local flattenedList = {}
+	for _, value in pairs( list ) do
+		for _, element in pairs( Globals.flattenTable( value ) ) do
+			flattenedList[#flattenedList + 1] = element
 		end
 	end
-	return FlattenedList
+	return flattenedList
 end
 
-function Globals.DeepCompare( Table1, Table2, IgnoreMetaTables ) -- Compares two tables and what's inside of those tables. 
-	local Type1 = type( Table1 )
-	local Type2 = type( Table2 )
-	if Type1 ~= Type2 then return false end
-	if Type1 ~= 'table' and Type2 ~= 'table' then return Table1 == Table2 end
-	local MetaTable = getmetatable( Table1 )
-	if not IgnoreMetaTables and MetaTable and MetaTable.__eq then return Table1 == Table2 end
+function Globals.deepCompare( t1, t2, ignoreMeta ) -- Compares two tables and what's inside of those tables. 
+	local type1 = type( t1 )
+	local type2 = type( t2 )
+	if type1 ~= type2 then return false end
+	if type1 ~= 'table' and type2 ~= 'table' then return t1 == t2 end
+	local meta = getmetatable( t1 )
+	if not ignoreMeta and meta and meta.__eq then return t1 == t2 end
 	
-	for Index1, Value1 in pairs( Table1 ) do
-		local Value2 = Table2[Index1]
-		if Value2 == nil or not DeepCompare( Value1, Value2 ) then return false end
+	for i1, v1 in pairs( Table1 ) do
+		local v2 = Table2[i1]
+		if v2 == nil or not globals.deepCompare( v1, v2 ) then return false end
 	end
-	for Index2, Value2 in pairs( Table2 ) do
-		local Value1 = Table1[Index2]
-		if Value1 == nil or not DeepCompare( Value1, Value2 ) then return false end
+	for i2, v2 in pairs( Table2 ) do
+		local v1 = Table1[i2]
+		if v1 == nil or not globals.deepCompare( v1, v2 ) then return false end
 	end
 	return true
 end
 
-function Globals.LoadImageBase64( File, Name ) -- Loads an image given the base-64 encoded information. 
-	return love.graphics.newImage( love.image.newImageData( love.filesystem.newFileData( File, Name:gsub( '_', '.' ), 'base64' ) ) )
+function Globals.loadBase64Image( file, name ) -- Loads an image given the base-64 encoded information. 
+	return love.graphics.newImage( love.image.newImageData( love.filesystem.newFileData( file, name:gsub( '_', '.' ), 'base64' ) ) )
 end
 
-function Globals.LoadSoundBase64( File, Name ) -- Loads a sound given the base-64 encoded information. 
-	return love.audio.newSource( love.sound.newSoundData( love.filesystem.newFileData( File, Name:gsub( '_', '.' ), 'base64' ) ), 'stream' )
+function Globals.LoadSoundBase64( file, name ) -- Loads a sound given the base-64 encoded information. 
+	return love.audio.newSource( love.sound.newSoundData( love.filesystem.newFileData( file, name:gsub( '_', '.' ), 'base64' ) ), 'stream' )
 end
 
-function Globals.Clamp( Minimum, Maximum, Value ) -- Makes sure a number is between the minimum and the maximum. 
-	return math.max( Minimum, math.min( Maximum, Value ) )
+function Globals.clamp( minimum, value, maximum ) -- Makes sure a number is between the minimum and the maximum. 
+	return math.max( minimum, math.min( maximum, value ) )
 end
 
-function Globals.Normalize( Minimum, Maximum, Value ) -- Normalize a value (put it on a scale from 0 to 1 )
-	return ( Value - Minimum ) / ( Maximum - Minimum )
+function Globals.normalize( minimum, value, maximum ) -- Normalize a value (put it on a scale from 0 to 1 )
+	return ( value - minimum ) / ( maximum - minimum )
 end
 
-function Globals.Lerp( Minimum, Maximum, Value ) -- Linear Interpolate a value (change from a scale from 0 to 1 to a range of values).
-	return ( Maximum - Minimum ) * Value + Minimum
+function Globals.lerp( minimum, value, maximum ) -- Linear Interpolate a value (change from a scale from 0 to 1 to a range of values).
+	return ( maximum - minimum ) * value + minimum
 end
 
-function Globals.Map( FirstMinimum, FirstMaximum, Value, FinalMinimum, FinalMaximum ) -- Maps from one scale to another.
-	return ( Value - FirstMinimum ) / ( FirstMaximum - FirstMinimum ) * ( FinalMaximum - FinalMinimum ) + FinalMinimum
+function Globals.map( firstMinimum, firstMaximum, value, finalMinimum, finalMaximum ) -- Maps from one scale to another.
+	return ( value - firstMinimum ) / ( firstMaximum - firstMinimum ) * ( finalMaximum - finalMinimum ) + finalMinimum
 end
 
-function Globals.Sign( Number ) 
-	return Number > 0 and 1 or Number < 0 and -1 or 0 
+function Globals.sign( x ) 
+	return x > 0 and 1 or x < 0 and -1 or 0 
 end
 
-function Globals.BoundingBox( x, y, BoxX, BoxY, BoxW, BoxH )
-	if x > BoxX and x < BoxX + BoxW and y > BoxY and y < BoxY + BoxH then
+function Globals.boundingBox( x, y, boxX, boxY, boxW, boxH )
+	if x > boxX and x < boxX + boxW and y > boxY and y < boxY + boxH then
 		return true
 	end
 	return false
 end
 
-function Globals.Cycle( Index, Increase, Table )
-	Index = Index or 0
-	Increase = Increase or 1
+function Globals.cycle( index, iterator, t )
+	index = index or 0
+	iterator = iterator or 1
 	
-	local New = Index + Increase
-	if New < 1 then New = #Table 
-	elseif New > #Table then New = 1 end
-	return New
+	local new = index + increase
+	if new < 1 then new = #t 
+	elseif new > #t then new = 1 end
+	return new
 end
 
 return Globals

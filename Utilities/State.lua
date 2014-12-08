@@ -1,36 +1,35 @@
 local Class = require 'Utilities.Class'
-local State = Class:Extend()
-State.Stack = {}
+local State = Class:extend()
+State.stack = {}
 
-function State.Set( Stack, To, Index )
-	if Index then table.remove( State.Stack, Index ) end 
+function State.set( to, index )	
+	local length = #State.stack
+	
+	local enter = To.Enter or function() end
+	local exit = length > 0 and State.stack[length].exit or function() end
+	
+	local information = exit()
+	enter( information )
+	
+	State.stack[Length + 1] = to
+	
+	if index then table.remove( State.stack, index ) end 
 	-- Should only be removing from end of stack, so don't have to worry about performance impact because of table.remove
-
-	local Length = #Stack
 	
-	local Enter = To.Enter or function() end
-	local Exit = Length > 0 and State.Stack[Length].Exit or function() end
-	
-	Exit()
-	Enter()
-	
-	State.Stack[Length + 1] = To
-	
-	return To
+	return to
 end
 
-function State.GetCurrentState( Stack )
-	return Stack[#Stack]
+function State.getCurrentState()
+	return State.stack[#State.stack]
 end
 
-function State.Pop( Stack )
-	local Index = #Stack
+function State.pop( stack )
+	local index = #State.stack
 	
-	assert( Index > 1, 'State Error: Attempt to pop with no values remaining!' )
-	local To State.Set( Stack[Index - 1], Index )
-	table.remove( Stack, Index )
+	assert( index > 1, 'State Error: Attempt to pop with no values remaining!' )
+	local to = State.set( State.stack[index - 1], index )
 	
-	return To
+	return to
 end
 
 return State

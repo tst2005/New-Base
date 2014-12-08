@@ -5,38 +5,38 @@ Camera.__index = Camera
 setmetatable( Camera, camera )
 
 -- hump.camera functions
-function Camera.New( x, y, Rotation, Zoom )
-	local New = camera.new( x, y, Rotation, Zoom )
+function Camera.new( x, y, rotation, zoom )
+	local New = camera.new( x, y, rotation, zoom )
 	New.__index = Camera
 	setmetatable( New, Camera )
 	return New
 end
 
-function Camera.Move( Self, DirectionX, DirectionY ) Self:move( DirectionX, DirectionY ); return Self end
-function Camera.SetPosition( Self, x, y ) Self:lookAt( x, y ); return Self end
-function Camera.GetPosition( Self ) return Self:pos() end
-function Camera.Rotate( Self, Amount ) Self:rotate( Amount ); return Self end
-function Camera.SetRotation( Self, Angle ) Self:rotateTo( Amount ); return Self end
-function Camera.Scale( Self, Scale ) Self:zoom( Scale ); return Self end
-function Camera.SetScale( Self, Scale ) Self:zoomTo( Scale ); return Self end
-function Camera.PreDraw( Self ) Self:attach(); return Self end
-function Camera.PostDraw( Self ) Self:detach(); return Self end
-function Camera.Draw( Self, Function ) Self:draw( Function ) end
-function Camera.GetWorldCoordinates( Self ) return Self:worldCoords() end
-function Camera.GetCameraCoordinates( Self ) return Self:cameraCoords() end
-function Camera.GetMousePosition( Self ) return Self:mousepos() end
+function Camera.move( self, directionX, directionY ) self:move( directionX, directionY ); return self end
+function Camera.setPosition( self, x, y ) self:lookAt( x, y ); return self end
+function Camera.getPosition( self ) return self:pos() end
+function Camera.rotate( self, Amount ) self:rotate( Amount ); return self end
+function Camera.setRotation( self, Angle ) self:rotateTo( Amount ); return self end
+function Camera.scale( self, scale ) self:zoom( scale ); return self end
+function Camera.setScale( self, scale ) self:zoomTo( scale ); return self end
+function Camera.preDraw( self ) self:attach(); return self end
+function Camera.postDraw( self ) self:detach(); return self end
+function Camera.draw( self, func ) self:draw( func ) end
+function Camera.getWorldCoordinates( self ) return self:worldCoords() end
+function Camera.getCameraCoordinates( self ) return self:cameraCoords() end
+function Camera.getMousePosition( self ) return self:mousepos() end
 
-function Camera.SetPreDraw( Self, Function ) Self.attach = function( Self ) Function( Self ) end end
-function Camera.SetPostDraw( Self, Function ) Self.detach = function( Self ) Function( Self ) end end
-function Camera.GetRotation( Self ) return Self.rot end
-function Camera.GetScale( Self ) return Self.scale end
--- Easing Movement
-function Camera.EaseTo( Self, Time, x, y, Easing )
-	Self.Tween = Tween.New( Time, Self, { x = x, y = y }, Easing )
+function Camera.setPreDraw( self, func ) self.attach = function( self ) func( self ) end end
+function Camera.setPostDraw( self, func ) self.detach = function( self ) func( self ) end end
+function Camera.getRotation( self ) return self.rot end
+function Camera.getScale( self ) return self.scale end
+-- Easing movement
+function Camera.easeTo( self, time, x, y, easing )
+	self.Tween = Tween.New( time, self, { x = x, y = y }, easing )
 end
 
-function Camera.Update( Self, dt )
-	if Self.Tween then Self.Tween:Update( dt ) end
+function Camera.update( self, dt )
+	if self.tween then self.tween:update( dt ) end
 end
 
 return Camera
