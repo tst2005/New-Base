@@ -42,6 +42,8 @@ function Menu.new( x, y, lineSeparation, font, ... )
 		workingY = workingY + temp.height + new.lineSeparation
 	end
 	
+	new.__type = 'Menu'
+	
 	return new
 end
 

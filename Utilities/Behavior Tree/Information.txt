@@ -1,0 +1,34 @@
+http://www.gamasutra.com/blogs/ChrisSimpson/20140717/221339/Behavior_trees_for_AI_How_they_work.php
+http://notmagi.me/behavior-trees-number-1/
+
+- Composite: 	Can have one or more children. Acts on the children. 
+	- Sequence: 	
+		- Visits each child in order. 
+		- If the first succeeds, it will move on to the second, etc. 
+		- If any child fails it will immediately return failure to the parent. 
+		- If the last child succeeds, it will return success to its parent. 
+	- Selector: 
+		- Returns success if any of its children are successful. 
+		- Only processes to the first success. 
+		- Returns failure if all the children fail. 
+- Decorator: 	Can only have a single child. Usually used to change the result of a process. 
+	- Inverter: 
+		- Inverts the result. (i.e. 'Success' become 'failure' and vice-versa.)
+	- Succeeder: 
+		- Always returns success, regardless of whether the task passed or not. 
+	- Failer: 
+		- This should be pretty obvious. 
+	- Repeater: * (Not needed in this contex, as far as I can tell)
+		- Reprocess child node each time its child returns a result. 
+		- Can have a set number of times to repeat. 
+	- Repeat until Fail: 
+		- Repeats until the child fails. 
+		- Once the child fails this will return success to the parent. 
+- Leaf:			Lowest level. Cannot have children. 
+	- init: 
+		- Called the first time a node is visited by its parent. 
+		- Used for initialization. 
+	- process (update):
+		- Called every "tick" of the behavior tree. 
+		- If this process returns success/failure then its processing will end until the next "tick."
+	- States: success, failure, running. 

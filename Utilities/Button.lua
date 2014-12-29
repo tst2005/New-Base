@@ -26,6 +26,8 @@ function Button.new( text, x, y, font )
 	new.isHovering = false
 	new.wasHovering = false
 	
+	new.__type = 'Button'
+	
 	return new
 end
 

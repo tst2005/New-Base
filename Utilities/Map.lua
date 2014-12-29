@@ -13,6 +13,8 @@ function Map.new( data, references, quad, imageWidth, imageHeight )
 	new.imageWidth = ( _type == 'image' and references[1]:getWidth() ) or imageWidth
 	new.imageHeight = ( _type == 'image' and references[1]:getHeight() ) or imageHeight
 	
+	new.__type = 'Map'
+	
 	return new
 end
 

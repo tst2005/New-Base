@@ -7,6 +7,7 @@ Base.rotation = 0
 Base.scaleX, Base.scaleY = 1, 1
 Base.offsetX, Base.offsetY = 0, 0
 Base.shearingX, Base.shearingY = 0, 0
+Base.__type = 'Base'
 
 -- x
 function Base.setX( self, x ) self.x = x; return self end

@@ -41,6 +41,7 @@ function Animation.new( images, delays, quad )
 		entireTime = 0, 
 		onComplete = function() end, 
 		timesRepeated = 0, 
+		__type = 'Animation'
 	}
 	
 	New.timer = Timer.after( New.delays[New.index], changeIndex, New )
@@ -111,5 +112,7 @@ function Animation.getentireTime( self ) return self.entireTime end
 -- On Complete
 function Animation.setOnComplete( self, f ) self.onComplete = f end
 function Animation.getOnComplete( self ) return self.onComplete end
+-- Type
+function Animation.type( self ) return self.__type end
 
 return Animation

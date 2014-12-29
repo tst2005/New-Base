@@ -2,7 +2,8 @@
 local Globals = {}
 
 Globals.utility = 'Utilities.'
-Globals.thirdParty = 'Utilities.Third Party.'
+Globals.thirdParty = 'Third Party.'
+Globals.behaviorTree = 'Behavior Tree.'
 
 Globals.hasCanvas = love.graphics.isSupported( 'canvas' )
 Globals.hasPo2 = love.graphics.isSupported( 'npot' )

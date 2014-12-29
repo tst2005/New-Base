@@ -1,12 +1,11 @@
 - Improve:
 	- Camera: Parallax-Scrolling (http://nova-fusion.com/2011/04/22/cameras-in-love2d-part-2-parallax-scrolling/)
-	- States cannot properly set state in state.enter
-	- When soundData/music is loaded, select type available
 - Test:
 - Finish/Make:
-	- Entity States / Finite State Machine (http://2dengine.com/doc_1_3_10/gs_fsm.html)
-	- Saving
-	- Events
+	- Entities
+		- Behavior Trees (http://notmagi.me/behavior-trees-number-1/)
+		- States (https://github.com/kikito/stateful.lua)
+	- Events/Observer (https://github.com/kikito/beholder.lua)
 	- Euler Method
 	- Vectors
 		- Free Body Diagrams?
