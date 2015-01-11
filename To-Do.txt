@@ -9,3 +9,4 @@
 	- Euler Method
 	- Vectors
 		- Free Body Diagrams?
+- Rework: Everything. Look at old code and fix methods.
