@@ -1,6 +1,3 @@
-- Improve:
-	- Camera: Parallax-Scrolling (http://nova-fusion.com/2011/04/22/cameras-in-love2d-part-2-parallax-scrolling/)
-- Test:
 - Finish/Make:
 	- Entities
 		- Behavior Trees (http://notmagi.me/behavior-trees-number-1/)
@@ -9,4 +6,5 @@
 	- Euler Method
 	- Vectors
 		- Free Body Diagrams?
-- Rework: Everything. Look at old code and fix methods.
+	- Camera: Parallax-Scrolling (http://nova-fusion.com/2011/04/22/cameras-in-love2d-part-2-parallax-scrolling/)
+- Classes: Investigate multi argument __callback functions.
