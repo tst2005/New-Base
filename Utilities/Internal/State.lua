@@ -3,6 +3,9 @@ local State = {}
 -- Default class.setState function. 
 local function _setstate( class, state, ... )
 	local previous = class.__stateStack[#class.__stateStack]
+	if type( state ) == 'string' then 
+		state = class:getState( state )
+	end
 	print( string.format( 'Switching to state %s, from state %s.', state, previous ) )
 	class.__stateStack[#class.__stateStack + 1] = state
 end
@@ -16,7 +19,7 @@ local function _popstate( class )
 end
 
 -- Default class.getClass function.
-local function _getclass( class, name )
+local function _getstate( class, name )
 	for index, value in pairs( class.__states ) do
 		if index == name then return value end
 	end
@@ -43,7 +46,7 @@ local function prepareTable( class )
 	
 	class.setState = class.setState or _setstate
 	class.popState = class.popState or _popstate
-	class.getState = class.getState or _getclass
+	class.getState = class.getState or _getstate
 	class.removeState = class.removeState or _removestate
 end
 
@@ -89,20 +92,6 @@ function State.addState( class, name )
 	end
 	
 	return new
-end
-
--- Description: Adds all the keys from tab to class.
--- Arguments: 
--- 		self: 		table			Any table that should have functions added.
---		...:		tables			All the tables to be implemented into the table.
-function Stack.implement( self, ... )
-	for _, implementation in pairs( { ... } )  do
-		for index, value in pairs( implementation ) do
-			if self[index] == nil and type( value ) == 'function' then
-				self[index] = value
-			end
-		end
-	end
 end
 
 return State
