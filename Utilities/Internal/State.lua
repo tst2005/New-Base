@@ -1,7 +1,14 @@
 local State = {}
 
+local function add__methods( class )
+	class.__stateStack = rawget( class, '__stateStack' ) or {}
+	class.__states = class.__states or {}
+end
+
 -- Default class.setState function. 
 local function _setstate( class, state, ... )
+	add__methods( class )
+	
 	local previous = class.__stateStack[#class.__stateStack]
 	if type( state ) == 'string' then 
 		state = class:getState( state )
@@ -12,6 +19,8 @@ end
 
 -- Default class.popState function.
 local function _popstate( class )
+	add__methods( class )
+	
 	local state = class.__stateStack[#class.__stateStack]
 	assert( state, 'State Error: Attempt to pop state of class with no remaining states.' )
 	print( string.format( 'Popping state %s.', state ) )
@@ -20,6 +29,8 @@ end
 
 -- Default class.getClass function.
 local function _getstate( class, name )
+	add__methods( class )
+	
 	for index, value in pairs( class.__states ) do
 		if index == name then return value end
 	end
@@ -28,6 +39,8 @@ end
 
 -- Default class.removeState function.
 local function _removestate( class, name )
+	add__methods( class )
+	
 	print( string.format( 'Removing state %s.', name ) )
 	class.__states[name] = nil
 	local pattern = string.format( '<State: %s>', name )
@@ -41,8 +54,7 @@ end
 -- Arguments: 
 -- 		class		table 		The class/table being given a state.
 local function prepareTable( class )
-	class.__stateStack = class.__stateStack or {}
-	class.__states = class.__states or {}
+	add__methods( class )
 	
 	class.setState = class.setState or _setstate
 	class.popState = class.popState or _popstate
@@ -76,13 +88,16 @@ function State.addState( class, name )
 	-- Assign the index meta-method like this so it won't overwrite the class in a local scope, then discard the changes down the road.
 	class.__index = function( tab, index ) 
 		-- First look through currently implemented class.
-		if class.__stateStack and #class.__stateStack > 0 then
-			for i, v in pairs( class.__stateStack[#class.__stateStack] ) do -- Look through the currently active state first.
-				if index == i then return class.__stateStack[#class.__stateStack][i] end
+		if rawget( tab, '__stateStack' ) and #tab.__stateStack > 0 then
+			for i, v in pairs( tab.__stateStack[#tab.__stateStack] ) do -- Look through the currently active state first.
+				if index == i then return rawget( tab.__stateStack[#tab.__stateStack], i ) end
 			end
 		end
 		-- Then look through the class.
-		for i, v in pairs( class ) do 
+		for i, v in pairs( tab ) do 
+			if index == i then return rawget( tab, 'i' ) end
+		end
+		for i, v in pairs( class ) do
 			if index == i then return class[i] end
 		end
 		for i, v in pairs( mt ) do

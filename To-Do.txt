@@ -8,3 +8,4 @@
 		- Free Body Diagrams?
 	- Camera: Parallax-Scrolling (http://nova-fusion.com/2011/04/22/cameras-in-love2d-part-2-parallax-scrolling/)
 - Classes: Investigate multi argument __callback functions.
+- Fix states. They won't work with multiple objects. Has to do with how inheritance works.

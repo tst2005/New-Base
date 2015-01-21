@@ -1,3 +1,35 @@
+--------------------- Mouse ---------------------
+-- 'mouse1'
+-- 'mouse2'
+-- 'mouse3'
+-- 'mouse4'
+-- 'mouse5'
+-- 'wheelup'
+-- 'wheeldown'
+
+-------------------- Gamepad --------------------
+-- 'fdown' -- fdown/up/left/right = face buttons: a, b...
+-- 'fup'
+-- 'fleft'
+-- 'fright'
+-- 'back'
+-- 'guide'
+-- 'start'
+-- 'leftstick' -- left stick pressed or not (boolean)
+-- 'rightstick' -- right stick pressed or not (boolean)
+-- 'l1'
+-- 'r1'
+-- 'l2' -- returns a value from 0 to 1
+-- 'r2' -- returns a value from 0 to 1
+-- 'dpup' -- dpad buttons
+-- 'dpdown'
+-- 'dpleft'
+-- 'dpright'
+-- 'leftx' -- returns a value from -1 to 1, the left stick's horizontal position
+-- 'lefty' -- same for vertical
+-- 'rightx' -- same for right stick
+-- 'righty'
+
 local Input = {}
 Input.__index = Input
 
