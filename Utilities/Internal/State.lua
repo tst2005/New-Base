@@ -1,7 +1,7 @@
 local State = {}
 
 local function add__methods( class )
-	class.__stateStack = rawget( class, '__stateStack' ) or {}
+	class.__stateStack = rawget( class, '__stateStack' ) or {}	
 	class.__states = class.__states or {}
 end
 
