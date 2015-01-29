@@ -6,7 +6,6 @@ Car:implement( State )
 
 function Car:new( name ) 
 	self.name = name
-	return self 
 end
 
 function Car:stop() print( 'Stopping the car!' ) end

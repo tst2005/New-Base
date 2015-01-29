@@ -1,13 +1,17 @@
 local State = {}
 
-local function add__methods( class )
+local function add__methods( class ) -- Make sure table is set up properly
+	class.__inited = true
 	class.__stateStack = rawget( class, '__stateStack' ) or {}	
 	class.__states = class.__states or {}
 end
 
--- Default class.setState function. 
-local function _setstate( class, state, ... )
-	add__methods( class )
+local function checkInit( class ) -- Set up table only once.
+	if not rawget( class, '__inited' ) then add__methods( class ) end
+end
+
+local function _setstate( class, state, ... ) -- Default class.setState function. 
+	checkInit( class )
 	
 	local previous = class.__stateStack[#class.__stateStack]
 	if type( state ) == 'string' then 
@@ -17,9 +21,8 @@ local function _setstate( class, state, ... )
 	class.__stateStack[#class.__stateStack + 1] = state
 end
 
--- Default class.popState function.
-local function _popstate( class )
-	add__methods( class )
+local function _popstate( class ) -- Default class.popState function.
+	checkInit( class )
 	
 	local state = class.__stateStack[#class.__stateStack]
 	assert( state, 'State Error: Attempt to pop state of class with no remaining states.' )
@@ -27,9 +30,8 @@ local function _popstate( class )
 	class.__stateStack[#class.__stateStack] = nil
 end
 
--- Default class.getClass function.
-local function _getstate( class, name )
-	add__methods( class )
+local function _getstate( class, name ) -- Default class.getClass function.
+	checkInit( class )
 	
 	for index, value in pairs( class.__states ) do
 		if index == name then return value end
@@ -37,9 +39,8 @@ local function _getstate( class, name )
 	return nil
 end
 
--- Default class.removeState function.
-local function _removestate( class, name )
-	add__methods( class )
+local function _removestate( class, name ) -- Default class.removeState function.
+	checkInit( class )
 	
 	print( string.format( 'Removing state %s.', name ) )
 	class.__states[name] = nil
@@ -50,11 +51,8 @@ local function _removestate( class, name )
 	end
 end
 
--- Description: Prepares the table for the "state infrastructure."
--- Arguments: 
--- 		class		table 		The class/table being given a state.
-local function prepareTable( class )
-	add__methods( class )
+local function prepareTable( class ) -- Prepares the table for the "state infrastructure."
+	checkInit( class )
 	
 	class.setState = class.setState or _setstate
 	class.popState = class.popState or _popstate
@@ -62,25 +60,13 @@ local function prepareTable( class )
 	class.removeState = class.removeState or _removestate
 end
 
--- Description: Creates the framework for the state being added.
--- Arguments: 
--- 		class		table 		The class/table being given a state.
--- 		name		string		The name of the state.
--- Returns: 
--- 		new			table		The method by which to edit the states.
-local function newState( class, name )
+local function newState( class, name ) -- Creates the framework for the state being added.
 	local new = class:extend( name, true, 'State' )
 	prepareTable( class )
 	return new
 end
 
--- Description: Adds a new state to the class.
--- Arguments: 
--- 		class		table		The class/table to give a state.
--- 		name		string		The name of the state.
--- Returns: 
--- 		new			table		The method by which to edit the states.
-function State.addState( class, name )
+function State.addState( class, name ) -- Adds a new state to the class.
 	local new = newState( class, name )
 	class.__states[name] = new
 	local mt = getmetatable( class )

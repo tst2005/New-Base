@@ -32,15 +32,7 @@ local Object = {
 }
 Object.__index = Object
 
--- Description: Makes a new class that inherits values from the old.
--- Arguments:
--- 		self: 		table				Any table that should have its values inherited.
--- 		name:		string				The name of the class. Mostly for debugging.
--- 		meta		boolean (true)		If the new table should inherit meta-methods.
--- 		prefix		string ('Class')	The prefix for the class.
--- Returns: 
--- 		new			table			The new class object.
-function Object.extend( self, name, meta, prefix )
+function Object.extend( self, name, meta, prefix ) -- Makes a new class that inherits values from the old.
 	local new = {}
 	meta = meta or true
 	
@@ -60,11 +52,7 @@ function Object.extend( self, name, meta, prefix )
 	return setmetatable( new, self )
 end
 
--- Description: Adds all the keys from tab to class.
--- Arguments: 
--- 		self: 		table			Any table that should have functions added.
---		...:		tables			All the tables to be implemented into the table.
-function Object.implement( self, ... )
+function Object.implement( self, ... ) -- Adds all the keys from tab to class.
 	local callbacks = {}
 	for _, implementation in pairs( { ... } )  do
 		for index, value in pairs( implementation ) do
@@ -81,13 +69,7 @@ function Object.implement( self, ... )
 	end
 end
 
--- Description: Checks if an object inherits from another type of object.
--- Arguments: 
--- 		self: 		table		Any table.
--- 		tab:		table		Name of the table to check.
--- Returns: 
--- 		isType		boolean		Whether the tab is in the class.
-function Object.is( self, tab )
+function Object.is( self, tab ) -- Checks if an object inherits from another type of object.
 	local mt = getmetatable( self )
 	while mt do
 		if mt == tab then return true end
@@ -96,29 +78,17 @@ function Object.is( self, tab )
 	return false 
 end
 
--- Description: Use this to easily get the type of a class.
--- Arguments: 
--- 		self		table		Any table.
--- Returns: 
--- 		type		string		The type of class.
-function Object.type( self )
+function Object.type( self ) -- Use this to easily get the type of a class.
 	return self.__type
 end
 
--- Description: Method to be overridden by each class manually. Called on object creation. 
 function Object.new( self, ... )
 end
 
--- Description: Method to be overridden by each class. Called on object destruction.
 function Object.destroy( self, ... )
 end
 
--- Description: Clone the current class.
--- Parameters: 
--- 		self: 		table 		Any table returned by the class method.
--- Returns: 
--- 		new			table		An exact copy of the previous table.
-function Object.instantiate( self )
+function Object.instantiate( self ) -- Clone the current class.
 	local new = self.super:extend()
 	for index, value in pairs( self ) do
 		if ( not new[index] ) or ( new[index] ~= self[index] ) then 
@@ -128,22 +98,14 @@ function Object.instantiate( self )
 	return new
 end
 
--- Description: The __tostring meta-method, called when you try do do print( Object ).
--- Arguments: 
--- 		self: 		table		Any table with the __type field.
 function Object.__tostring( self )
 	return string.format( '<%s: %s>', self.__prefix, self.__type )
 end
 
--- Description: The __call meta-method, called when you do Object()
--- Arguments: 
--- 		self: 		table		Any table.
--- 		...: 		Anything	Any variables that are used in the Object:new() function.
--- Returns: 
--- 		object: 	table		A new creation of the object.
 function Object.__call( self, ... )
 	local object = setmetatable( {}, self )
 	object:new( ... )
+	object.super = self
 	return object
 end
 
