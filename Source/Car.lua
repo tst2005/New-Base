@@ -20,5 +20,4 @@ local Broken = Car:addState( 'Broken' )
 function Broken:speak() print( string.format( 'I am a broken car name "%s!" :(', self.name ) ) end
 function Broken:stop() print( 'I am broken and therefore already stopped...' ) end
 
-
 return Car

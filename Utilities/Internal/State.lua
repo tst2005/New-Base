@@ -1,9 +1,15 @@
 local State = {}
 
 local function add__methods( class ) -- Make sure table is set up properly
+	local previous = class.super.__stateStack or {}
+	
 	class.__inited = true
 	class.__stateStack = rawget( class, '__stateStack' ) or {}	
 	class.__states = class.__states or {}
+	
+	for index = #previous, 1, -1 do -- Add inheritance from parents.
+		table.insert( class.__stateStack, previous[index] )
+	end
 end
 
 local function checkInit( class ) -- Set up table only once.
@@ -17,7 +23,6 @@ local function _setstate( class, state, ... ) -- Default class.setState function
 	if type( state ) == 'string' then 
 		state = class:getState( state )
 	end
-	print( string.format( 'Switching to state %s, from state %s.', state, previous ) )
 	class.__stateStack[#class.__stateStack + 1] = state
 end
 
@@ -26,7 +31,6 @@ local function _popstate( class ) -- Default class.popState function.
 	
 	local state = class.__stateStack[#class.__stateStack]
 	assert( state, 'State Error: Attempt to pop state of class with no remaining states.' )
-	print( string.format( 'Popping state %s.', state ) )
 	class.__stateStack[#class.__stateStack] = nil
 end
 
@@ -42,7 +46,6 @@ end
 local function _removestate( class, name ) -- Default class.removeState function.
 	checkInit( class )
 	
-	print( string.format( 'Removing state %s.', name ) )
 	class.__states[name] = nil
 	local pattern = string.format( '<State: %s>', name )
 	for index, value in pairs( class.__stateStack ) do -- Pairs to safely iterate.
@@ -66,31 +69,45 @@ local function newState( class, name ) -- Creates the framework for the state be
 	return new
 end
 
-function State.addState( class, name ) -- Adds a new state to the class.
+function State.addState( class, name ) -- Adds a new state to the class.	
 	local new = newState( class, name )
 	class.__states[name] = new
 	local mt = getmetatable( class )
 	
-	-- Assign the index meta-method like this so it won't overwrite the class in a local scope, then discard the changes down the road.
-	class.__index = function( tab, index ) 
+	local __index = function( tab, index ) 
 		-- First look through currently implemented class.
 		if rawget( tab, '__stateStack' ) and #tab.__stateStack > 0 then
 			for i, v in pairs( tab.__stateStack[#tab.__stateStack] ) do -- Look through the currently active state first.
-				if index == i then return rawget( tab.__stateStack[#tab.__stateStack], i ) end
+				if index == i then return v end
 			end
 		end
-		-- Then look through the class.
 		for i, v in pairs( tab ) do 
-			if index == i then return rawget( tab, 'i' ) end
+			if index == i then return v end
 		end
 		for i, v in pairs( class ) do
-			if index == i then return class[i] end
+			if index == i then return v end
 		end
 		for i, v in pairs( mt ) do
-			if index == i then return mt[i] end
+			if index == i then return v end
 		end
 		return nil
 	end
+	
+	-- Warning: The following is VERY ugly. Don't look at it unless you must.
+	local oldCall = class.__call
+	setmetatable( class, 
+		{ 
+			__index = __index, 
+			__tostring = class.__tostring, 
+			__call = 
+				function( _, ... )
+					checkInit( _ )
+					local new = oldCall( _, ... )
+					checkInit( new )
+					return setmetatable( new, { __index = __index, __tostring == __tostring } )
+				end, 
+		} 
+	)
 	
 	return new
 end
